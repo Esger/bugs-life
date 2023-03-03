@@ -1,0 +1,41 @@
+<template>
+	<require from="./controls.css"></require>
+	<require from="resources/elements/stats/stats"></require>
+	<life-controls>
+		<a href="#"
+           class="clearbutton"
+           class.bind="clearPulsor ? 'pulsor' : ''"
+           title="Clear"
+           click.delegate="clear()"></a>
+		<a href="#"
+           class="stopbutton"
+           title="Stop"
+           click.delegate="stop()"></a>
+		<a href="#"
+           class="stepbutton"
+           title="Step"
+           click.delegate="step()"></a>
+		<a href="#"
+           class="startnstopbutton"
+           class.bind="startPulsor ? 'pulsor' : ''"
+           title="Start … and stop automatically"
+           click.delegate="startNstop()"><span></span></a>
+		<a href="#"
+           class="startbutton"
+           title="Start"
+           click.delegate="start()"></a>
+		<a href="#"
+           class="randombutton"
+           title="Fill randomly"
+           click.delegate="fillRandom()"></a>
+		<input type="range"
+               min.one-time="0"
+               max.one-time="500"
+               step="50"
+               value.bind="timeOut"
+               change.delegate="setTimeoutInterval()">
+		<output value.bind="'interval: ' + timeOut"></output>
+
+	</life-controls>
+	<stats></stats>
+</template>

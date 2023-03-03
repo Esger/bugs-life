@@ -1,0 +1,62 @@
+<template>
+	<require from="./settings.css"></require>
+	<tab-content class="lifeRules">
+		<row-labels>
+			<p title="Preset life rules">Presets</p>
+		</row-labels>
+		<life-rules>
+			<select change.delegate="setPreset()"
+                    value.bind="selectedPreset">
+                <option repeat.for="preset of presets"  
+                    model.bind="$index" 
+                    innerhtml.one-time="preset.name"> 
+                </option> 
+            </select>
+		</life-rules>
+	</tab-content>
+
+	<tab-content class="lifeRules">
+		<row-labels>
+			<p title="Neighbour count to stay alive">New</p>
+			<p title="Neighbour count to come alive">Stay</p>
+		</row-labels>
+		<life-rules>
+			<life-rule repeat.for="rule of liferules"
+					   if.bind="$index !== 9">
+				<input type="checkbox"
+                       checked.bind="rule"
+                       id.one-time="'rule_'+$index"
+                       change.delegate="setRules($index)">
+				<label for.one-time="'rule_'+$index">${$index % 10}</label>
+			</life-rule>
+		</life-rules>
+	</tab-content>
+
+	<tab-content class="lifeRules">
+		<row-labels>
+			<p title="Change cell size and toggle trails">Cell size</p>
+		</row-labels>
+		<life-rules>
+			<input type="range"
+                   title="cell size ${cellSize}"
+                   min.one-time="minCellSize"
+                   max.one-time="maxCellSize"
+                   value.bind="cellSizeExp"
+                   change.delegate="setCellSize()"
+                   focus.delegate="stop()">
+			<output value.bind="cellSize"></output>
+			<input id="trails"
+                   type="checkbox"
+                   checked.bind="trails"
+                   change.delegate="toggleTrails()" />
+			<label for="trails"> Trails</label>
+			<input id="grid"
+                   type="checkbox"
+                   checked.bind="grid"
+                   change.delegate="toggleGrid()" />
+			<label for="grid"> Grid</label>
+
+		</life-rules>
+	</tab-content>
+
+</template>

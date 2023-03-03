@@ -1,0 +1,14 @@
+<template>
+	<require from="resources/elements/settings/settings"></require>
+	<require from="resources/elements/story/story"></require>
+	<require from="./tabs.css"></require>
+	<tab-buttons>
+		<tab-button repeat.for="tab of tabs"
+					click.delegate="activateTab($index)"
+					class.bind="tab.active ? 'active' : ''">${tab.title}</tab-button>
+	</tab-buttons>
+	<tab-contents>
+		<settings if.bind="tabs[0].active"></settings>
+		<story if.bind="tabs[1].active"></story>
+	</tab-contents>
+</template>
