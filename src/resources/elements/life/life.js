@@ -28,7 +28,7 @@ export class LifeCustomElement {
 		this.now = performance.now();
 		this.deltaTime = this.now - this.before;
 		this.lifeSteps = 0;
-		this.prevSteps = this.lifeSteps;
+		this.prevSteps = 0;
 	}
 
 	attached() {
@@ -40,15 +40,16 @@ export class LifeCustomElement {
 		this.before = this.now;
 		this.now = performance.now();
 		this.deltaTime = this.now - this.before;
-		let steps = this.lifeSteps - this.prevSteps;
+		const steps = this.lifeSteps - this.prevSteps;
 		this.prevSteps = this.lifeSteps;
-
-		let speed = Math.floor(1000 * steps / this.deltaTime);
-		this._eventAggregator.publish('stats', {
-			cellCount: this.cellsAlive,
-			generations: this.lifeSteps,
-			speed: speed
-		});
+		if (this.deltaTime > 0) {
+			const speed = Math.floor(1000 * steps / this.deltaTime);
+			this._eventAggregator.publish('stats', {
+				cellCount: this.cellsAlive,
+				generations: this.lifeSteps,
+				speed: speed
+			});
+		}
 	}
 
 	get meanOver100Gens() {
@@ -78,7 +79,7 @@ export class LifeCustomElement {
 
 	_drawCells(generate) {
 		if (generate) this._lifeWorkerService.getGeneration();
-		let cells = this._lifeWorkerService.cells;
+		const cells = this._lifeWorkerService.cells;
 		this.cellsAlive = cells.length;
 		this.lifeSteps += 1;
 		this._canvasService.drawCells(cells);

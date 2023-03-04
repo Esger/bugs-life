@@ -24,7 +24,7 @@ export class LifeWorkerService {
 			this._buffer = e.data.cells || [];
 			this.ea.publish('dataReady');
 		};
-		let workerData = {
+		const workerData = {
 			message: 'initialize',
 			w: w,
 			h: h,
@@ -34,11 +34,11 @@ export class LifeWorkerService {
 	}
 
 	resize(w, h) {
-		let inArea = cell => {
+		const inArea = cell => {
 			return (cell[0] <= w) && (cell[1] <= h);
 		};
 		this._buffer = this._buffer.filter(inArea);
-		let workerData = {
+		const workerData = {
 			message: 'setSize',
 			w: w,
 			h: h
@@ -48,21 +48,21 @@ export class LifeWorkerService {
 
 	clear() {
 		// this._buffer = [];
-		let workerData = {
+		const workerData = {
 			message: 'clear',
 		};
 		this.wrkr.postMessage(workerData);
 	}
 
 	fillRandom() {
-		let workerData = {
+		const workerData = {
 			message: 'fillRandom',
 		};
 		this.wrkr.postMessage(workerData);
 	}
 
 	changeRules(rules) {
-		let workerData = {
+		const workerData = {
 			message: 'rules',
 			rules: rules
 		};
@@ -70,11 +70,11 @@ export class LifeWorkerService {
 	}
 
 	addCell(xy) {
-		let cells = this._buffer;
+		const cells = this._buffer;
 		if (xy) {
 			cells.push(xy);
 		}
-		let workerData = {
+		const workerData = {
 			message: 'setCells',
 			cells: cells
 		};
@@ -82,7 +82,7 @@ export class LifeWorkerService {
 	}
 
 	getGeneration() {
-		let workerData = {
+		const workerData = {
 			message: 'step'
 		};
 		this.wrkr.postMessage(workerData);
