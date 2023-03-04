@@ -42,14 +42,14 @@ export class LifeCustomElement {
 		this.deltaTime = this.now - this.before;
 		const steps = this.lifeSteps - this.prevSteps;
 		this.prevSteps = this.lifeSteps;
-		if (this.deltaTime > 0) {
-			const speed = Math.floor(1000 * steps / this.deltaTime);
-			this._eventAggregator.publish('stats', {
-				cellCount: this.cellsAlive,
-				generations: this.lifeSteps,
-				speed: speed
-			});
-		}
+		if (this.deltaTime <= 0) return;
+
+		const speed = Math.floor(1000 * steps / this.deltaTime);
+		this._eventAggregator.publish('stats', {
+			cellCount: this.cellsAlive,
+			generations: this.lifeSteps,
+			speed: speed
+		});
 	}
 
 	get meanOver100Gens() {
@@ -123,12 +123,12 @@ export class LifeCustomElement {
 
 	stop() {
 		this.running = false;
-		if (this.statusUpdateHandle) {
-			setTimeout(() => {
-				clearInterval(this.statusUpdateHandle);
-				this.statusUpdateHandle = null;
-			}, 333);
-		}
+		if (!this.statusUpdateHandle) return;
+
+		setTimeout(() => {
+			clearInterval(this.statusUpdateHandle);
+			this.statusUpdateHandle = null;
+		}, 333);
 	}
 
 	start() {
