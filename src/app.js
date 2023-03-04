@@ -1,3 +1,3 @@
 export class App {
-  message = 'Hello World!';
+	message = "That's life";
 }

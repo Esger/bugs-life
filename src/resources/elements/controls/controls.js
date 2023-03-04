@@ -1,58 +1,58 @@
 import {
-    inject
+	inject
 } from 'aurelia-framework';
 import {
-    EventAggregator
+	EventAggregator
 } from 'aurelia-event-aggregator';
 
 @inject(EventAggregator)
 export class ControlsCustomElement {
 
-    constructor(eventAggregator) {
-        this.ea = eventAggregator;
-        this.startPulsor = true;
-        this.clearPulsor = false;
-        this.timeOut = 0;
-        this.addListeners();
-    }
+	constructor(eventAggregator) {
+		this._eventAggregator = eventAggregator;
+		this.startPulsor = true;
+		this.clearPulsor = false;
+		this.timeOut = 0;
+		this.addListeners();
+	}
 
-    clear() {
-        this.ea.publish('clear');
-        this.clearPulsor = false;
-        this.startPulsor = true;
-    }
+	clear() {
+		this._eventAggregator.publish('clear');
+		this.clearPulsor = false;
+		this.startPulsor = true;
+	}
 
-    stop() {
-        this.ea.publish('stop');
-    }
+	stop() {
+		this._eventAggregator.publish('stop');
+	}
 
-    step() {
-        this.ea.publish('step');
-        this.startPulsor = false;
-    }
+	step() {
+		this._eventAggregator.publish('step');
+		this.startPulsor = false;
+	}
 
-    start() {
-        this.ea.publish('start');
-        this.startPulsor = false;
-    }
+	start() {
+		this._eventAggregator.publish('start');
+		this.startPulsor = false;
+	}
 
-    startNstop() {
-        this.ea.publish('startNstop');
-        this.startPulsor = false;
-    }
+	startNstop() {
+		this._eventAggregator.publish('startNstop');
+		this.startPulsor = false;
+	}
 
-    fillRandom() {
-        this.ea.publish('fillRandom');
-    }
+	fillRandom() {
+		this._eventAggregator.publish('fillRandom');
+	}
 
-    setTimeoutInterval() {
-        this.ea.publish('timeoutInterval', this.timeOut);
-    }
+	setTimeoutInterval() {
+		this._eventAggregator.publish('timeoutInterval', this.timeOut);
+	}
 
-    addListeners() {
-        this.ea.subscribe('cellSize', response => {
-            this.clearPulsor = true;
-        });
-    }
+	addListeners() {
+		this._eventAggregator.subscribe('cellSize', response => {
+			this.clearPulsor = true;
+		});
+	}
 
 }
