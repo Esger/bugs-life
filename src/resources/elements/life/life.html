@@ -1,5 +1,7 @@
 <template>
+	<require from="resources/elements/agents/agents"></require>
 	<require from="./life.css"></require>
+
 	<canvas id="life"
 			width="750"
 			height="464"
@@ -7,4 +9,5 @@
 			mouseenter.trigger="slowDown()"
 			mouseleave.trigger="fullSpeed()">
 	</canvas>
+	<agents></agents>
 </template>

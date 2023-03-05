@@ -4,6 +4,7 @@
 	"paths": {
 		"root": "src",
 		"resources": "resources",
+		"components": "resources/components",
 		"elements": "resources/elements",
 		"attributes": "resources/attributes",
 		"services": "resources/services",
