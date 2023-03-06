@@ -23,12 +23,13 @@ export class AgentsCustomElement {
 	_addAgent() {
 		const agent = this._agent.randomAgent();
 		this._agents.push(agent);
-		console.log(this._agents);
 	}
 
 	_addListeners() {
-		// this._eventAggregator.subscribeOnce('dataReady', _ => this.drawAgents);
-		this._eventAggregator.subscribe('step', () => {
+		this._eventAggregator.subscribe('dataReady', _ => {
+			this.drawAgents();
+		});
+		this._eventAggregator.subscribe('step', _ => {
 			this.drawAgents();
 		});
 	};
