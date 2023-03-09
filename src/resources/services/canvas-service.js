@@ -33,6 +33,13 @@ export class CanvasService {
 		this._ctxOffscreen.fillRect(0, 0, this._canvas.width, this._canvas.height);
 	}
 
+	getWorldSize() {
+		return {
+			width: Math.floor(this._canvas.width / this._cellSize),
+			height: Math.floor(this._canvas.height / this._cellSize),
+		}
+	}
+
 	drawCells(cells) {
 		this._ctxOffscreen.fillStyle = "rgba(255, 255, 255, " + this._opacity + ")";
 		this._ctxOffscreen.fillRect(0, 0, this._canvas.width, this._canvas.height);
@@ -81,8 +88,8 @@ export class CanvasService {
 			const adult = (agent.adult() && !agent.pregnant) ? 1 : 0;
 			const scale = Math.max(agent.radius, agent.minRadius) / 16;
 			this._ctxOffscreen.save();
-			this._ctxOffscreen.translate(agent.x, agent.y);
-			this._ctxOffscreen.rotate(agent.direction - Math.PI / 2);
+			this._ctxOffscreen.translate(agent.x * this._cellSize, agent.y * this._cellSize);
+			this._ctxOffscreen.rotate(agent.angle);
 			this._ctxOffscreen.scale(scale, scale);
 			this._ctxOffscreen.drawImage(agent.image(), - 16, - 16);
 			this._ctxOffscreen.restore();

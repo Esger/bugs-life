@@ -109,5 +109,6 @@ export class SettingsCustomElement {
 
 	attached() {
 		this.publishRules(true);
+		this.setCellSize();
 	}
 }

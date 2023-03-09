@@ -26,7 +26,7 @@ export class LifeCustomElement {
 		this.grid = false;
 		this.before = performance.now();
 		this.now = performance.now();
-		this.deltaTime = this.now - this.before;
+		this.before = this.now;
 		this.lifeSteps = 0;
 		this.prevSteps = 0;
 	}
@@ -37,7 +37,6 @@ export class LifeCustomElement {
 	}
 
 	showStats() {
-		this.before = this.now;
 		this.now = performance.now();
 		this.deltaTime = this.now - this.before;
 		const steps = this.lifeSteps - this.prevSteps;
@@ -45,6 +44,7 @@ export class LifeCustomElement {
 		if (this.deltaTime <= 0) return;
 
 		const speed = Math.floor(1000 * steps / this.deltaTime);
+		this.before = this.now;
 		this._eventAggregator.publish('stats', {
 			cellCount: this.cellsAlive,
 			generations: this.lifeSteps,
