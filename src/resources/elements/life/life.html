@@ -1,13 +1,19 @@
 <template>
 	<require from="resources/elements/agents/agents"></require>
+	<require from="resources/attributes/canvas-control"></require>
 	<require from="./life.css"></require>
 
-	<canvas id="life"
-			width="750"
-			height="464"
-			click.delegate="addCell($event)"
-			mouseenter.trigger="slowDown()"
-			mouseleave.trigger="fullSpeed()">
-	</canvas>
-	<agents></agents>
+	<agents food.bind="cells"
+			world-width.bind="spaceWidth"
+			world-height.bind="spaceHeight">
+		<canvas id="life"
+				width="750"
+				height="464"
+				click.delegate="addCell($event)"
+				mouseenter.trigger="slowDown()"
+				mouseleave.trigger="fullSpeed()"
+				canvas-control.bind="{'cells':cells, 'agents':agents, 'cellSize': cellSize}">
+		</canvas>
+	</agents>
+
 </template>

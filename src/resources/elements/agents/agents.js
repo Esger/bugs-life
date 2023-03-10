@@ -1,58 +1,49 @@
-import { inject } from 'aurelia-framework';
+import { inject, bindable } from 'aurelia-framework';
 import { EventAggregator } from 'aurelia-event-aggregator';
-import { Agent } from "components/agent.js"
+import { Agent } from "resources/components/agent.js"
 import { LifeWorkerService } from 'resources/services/life-worker-service';
-import { CanvasService } from "services/canvas-service";
 
-@inject(EventAggregator, Agent, LifeWorkerService, CanvasService)
+@inject(EventAggregator, Agent, LifeWorkerService)
 export class AgentsCustomElement {
-	_agents = [];
+	@bindable food;
+	@bindable worldWidth;
+	@bindable worldHeight;
+	agents = [];
 
-	constructor(eventAggregator, agent, lifeWorkerService, canvasService) {
+	constructor(eventAggregator, agent, lifeWorkerService) {
 		this._eventAggregator = eventAggregator;
-		this._agent = agent;
 		this._lifeWorkerService = lifeWorkerService;
-		this._canvasService = canvasService;
+		this._agent = agent;
 		this._addAgent();
 		this._addListeners();
 	}
 
 	attached() {
-		const worldSize = this._canvasService.getWorldSize();
-		this._agent.setWorldSize(worldSize);
 		this._cellSizeSubscription = this._eventAggregator.subscribe('cellSize', _ => {
-			const worldSize = this._canvasService.getWorldSize();
-			this._agent.setWorldSize(worldSize);
+			this.agents.forEach(agent => agent.setWorldSize(this.worldWidth, this.worldHeight));
 		});
-		this._eventAggregator.publish('loadImages');
-		this._agent.setImages();
+		this._agentImages = {
+			'male': [$('.bug_0')[0], $('.bug-0')[0]],
+			'female': [$('.bug_1')[0], $('.bug-1')[0]]
+		}
 	}
 
 	_addAgent() {
 		const agent = this._agent.randomAgent();
-		this._agents.push(agent);
+		agent => agent.setImages(this._agentImages);
+		this.agents.push(agent);
 	}
 
 	_addListeners() {
-		this._eventAggregator.subscribe('dataReady', _ => {
-			this._drawAgents();
+		this._eventAggregator.subscribe('cellsReady', _ => {
 			this._stepAgents();
 		});
-		// this._eventAggregator.subscribe('step', _ => {
-		// 	this._drawAgents();
-		// 	this._stepAgents();
-		// });
 	}
 
 	_stepAgents() {
-		const lifeCells = this._lifeWorkerService.cells;
-		this._agents.forEach(agent => {
-			agent.step(lifeCells);
-		})
-	}
-
-	// Draw the bugs
-	_drawAgents() {
-		this._canvasService.pushAgents(this._agents);
+		this.agents.forEach(agent => {
+			agent.step(this.food);
+		});
+		this._eventAggregator.publish('agentsReady');
 	}
 }

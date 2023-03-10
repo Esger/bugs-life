@@ -30,6 +30,7 @@ export class Agent {
 			newAgent.y = this._yWrap(newAgent.y + dy);
 			newAgent.angle += newAgent.turnAmount * angleNudge * Math.PI / 360;
 		}
+		newAgent.setWorldSize = this._setWorldSize;
 
 		return newAgent;
 	}
@@ -73,16 +74,13 @@ export class Agent {
 		return (y + this._worldHeight) % this._worldHeight;
 	}
 
-	setImages() {
-		this._bugImages = {
-			'male': [$('.bug_0')[0], $('.bug-0')[0]],
-			'female': [$('.bug_1')[0], $('.bug-1')[0]]
-		}
+	setImages(bugImages) {
+		this._bugImages = bugImages;
 	}
 
-	setWorldSize(size) {
-		this._worldWidth = size.width;
-		this._worldHeight = size.height;
+	_setWorldSize(width, height) {
+		this._worldWidth = width;
+		this._worldHeight = height;
 	}
 
 }

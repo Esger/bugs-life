@@ -1,24 +1,30 @@
 import { inject } from 'aurelia-framework';
 import { EventAggregator } from 'aurelia-event-aggregator';
 
-@inject(EventAggregator)
-export class CanvasService {
+@inject(Element, EventAggregator)
+export class CanvasControlCustomAttribute {
 
 	// TODO make a worker service from this service
 
-	constructor(eventAggregator) {
+	constructor(element, eventAggregator) {
+		this._element = element;
 		this._eventAggregator = eventAggregator;
 		this._grid = false;
-		this._cellSize = 2;
 		this._trails = true;
 		this._opacity = 1 - this._trails * 0.9;
-		this._agentsBuffer = [];
 		this._hasAgents = true;
 		this._addListeners();
 	}
 
+	bind() {
+		this._initCanvas();
+	}
+
 	_initCanvas() {
-		this._canvas = document.getElementById('life');
+		this._cells = this.value.cells;
+		this._agents = this.value.agents;
+		this._cellSize = this.value.cellSize;
+		this._canvas = this._element;
 		this._ctx = this._canvas.getContext('2d');
 		this._canvasWidth = this._canvas.width;
 		this._canvasHeight = this._canvas.height;
@@ -33,20 +39,13 @@ export class CanvasService {
 		this._ctxOffscreen.fillRect(0, 0, this._canvas.width, this._canvas.height);
 	}
 
-	getWorldSize() {
-		return {
-			width: Math.floor(this._canvas.width / this._cellSize),
-			height: Math.floor(this._canvas.height / this._cellSize),
-		}
-	}
-
-	drawCells(cells) {
+	_drawCells() {
 		this._ctxOffscreen.fillStyle = "rgba(255, 255, 255, " + this._opacity + ")";
 		this._ctxOffscreen.fillRect(0, 0, this._canvas.width, this._canvas.height);
 		this._grid && this.drawgrid();
 
 		this._ctxOffscreen.fillStyle = "rgba(128, 128, 0, 1)";
-		cells?.forEach(cell => {
+		this._cells?.forEach(cell => {
 			this._ctxOffscreen.fillRect(cell[0] * this._cellSize, cell[1] * this._cellSize, this._cellSize, this._cellSize);
 		})
 		this._ctx.drawImage(this._offScreenCanvas, 0, 0, this._canvasWidth, this._canvasHeight);
@@ -72,19 +71,13 @@ export class CanvasService {
 		this._ctx.drawImage(this._offScreenCanvas, 0, 0, this._canvasWidth, this._canvasHeight);
 	}
 
-	addCell(x, y) {
+	_addCell(x, y) {
 		this._ctx.fillStyle = "#d4d4d4";
 		this._ctx.fillRect(x * this._cellSize, y * this._cellSize, this._cellSize, this._cellSize);
 	}
 
-	pushAgents(agents) {
-		// agents have to be drawn as last.
-		this._agentsBuffer.push(agents);
-	}
-
 	_drawAgents() {
-		const agents = this._agentsBuffer.shift();
-		agents?.forEach(agent => {
+		this._agents?.forEach(agent => {
 			const adult = (agent.adult() && !agent.pregnant) ? 1 : 0;
 			const scale = Math.max(agent.radius, agent.minRadius) / 16;
 			this._ctxOffscreen.save();
@@ -113,19 +106,18 @@ export class CanvasService {
 	}
 
 	_addListeners() {
-		this._eventAggregator.subscribe('cellSize', response => {
-			this._cellSize = response;
+		this._eventAggregator.subscribe('agentsReady', _ => {
+			this._drawCells();
+		});
+		this._eventAggregator.subscribe('addCell', data => {
+			this._addCell(...data);
 		});
 		this._eventAggregator.subscribe('toggleGrid', _ => {
 			this._grid = !this._grid;
-			this._grid && this.drawgrid();
 		});
 		this._eventAggregator.subscribe('toggleTrails', () => {
 			this._trails = !this._trails;
 			this._opacity = 1 - this._trails * 0.9;
-		});
-		this._eventAggregator.subscribe('canvasReady', canvas => {
-			this._initCanvas(canvas);
 		});
 	}
 
