@@ -6,14 +6,18 @@ import { LifeWorkerService } from 'resources/services/life-worker-service';
 export class LifeCustomElement {
 
 	statusUpdateHandle = null;
-	cells = []
+	cells = null;
+	canvasWidth = 750;
+	canvasHeight = 464;
+	spaceWidth = 750;
+	spaceHeight = 464;
 
 	// TODO try this https://hacks.mozilla.org/2011/12/faster-canvas-pixel-manipulation-with-typed-arrays/
 
 	constructor(eventAggregator, lifeWorkerService) {
 		this._eventAggregator = eventAggregator;
 		this._lifeWorkerService = lifeWorkerService;
-		this._cellSize = 2;
+		this.cellSize = 2;
 		this._cellsAlive = 0;
 		this._liferules = [];
 		this._speedInterval = 0;
@@ -47,7 +51,7 @@ export class LifeCustomElement {
 		});
 	}
 
-	get meanOver100Gens() {
+	getMeanOver100Gens() {
 		this._cellCounts.push(this._cellsAlive);
 		this._cellCounts = this._cellCounts.slice(-100);
 		const average = arr => arr.reduce((p, c) => p + c, 0) / arr.length;
@@ -55,7 +59,7 @@ export class LifeCustomElement {
 	}
 
 	get stable() {
-		if (Math.abs(this.meanOver100Gens - this._cellsAlive) < 7) {
+		if (Math.abs(this.getMeanOver100Gens() - this._cellsAlive) < 7) {
 			this._stableCountDown -= 1;
 		} else {
 			this._stableCountDown = 20;
@@ -74,26 +78,21 @@ export class LifeCustomElement {
 
 	_getCells(generate) {
 		if (generate) this._lifeWorkerService.getGeneration();
-		this.cells = this._lifeWorkerService.cells;
-		this._cellsAlive = this.cells.length;
+		// this._cellsAlive = this.cells.length;
 		this._lifeSteps += 1;
-		this._eventAggregator.publish('cellsReady');
 	}
 
 	_initLife() {
 		this.resetSteps();
 		this.canvas = document.getElementById('life');
-		this.canvasWidth = this.canvas.width;
-		this.canvasHeight = this.canvas.height;
 		this._setSpaceSize();
 		this._lifeWorkerService.init(this.spaceWidth, this.spaceHeight, this._liferules);
 		this._lifeWorkerService.fillRandom();
-		this._subscribeOnFirstData();
 	}
 
 	_setSpaceSize() {
-		this.spaceWidth = Math.floor(this.canvasWidth / this._cellSize);
-		this.spaceHeight = Math.floor(this.canvasHeight / this._cellSize);
+		this.spaceWidth = Math.floor(this.canvasWidth / this.cellSize);
+		this.spaceHeight = Math.floor(this.canvasWidth / this.cellSize);
 	}
 
 	resetSteps() {
@@ -138,26 +137,18 @@ export class LifeCustomElement {
 		this.statusUpdateHandle = setInterval(() => { this.showStats(); }, 500);
 	}
 
-	_subscribeOnFirstData() {
-		this._eventAggregator.subscribeOnce('dataReady', () => {
-			this._getCells();
-		});
-	}
-
 	addCell(event) {
 		const mouseX = (event.offsetX) ? event.offsetX : (event.pageX - this.offsetLeft);
-		const realX = Math.floor(mouseX / this._cellSize);
+		const realX = Math.floor(mouseX / this.cellSize);
 		const mouseY = (event.offsetY) ? event.offsetY : (event.pageY - this.offsetTop);
-		const realY = Math.floor(mouseY / this._cellSize);
+		const realY = Math.floor(mouseY / this.cellSize);
 		this._eventAggregator.publish('addCell', [realX, realY]);
-		this._subscribeOnFirstData();
 		this._lifeWorkerService.addCell([realX, realY]);
 	}
 
 	_addListeners() {
 		this._eventAggregator.subscribe('clear', () => {
 			this.clear();
-			this._subscribeOnFirstData();
 		});
 		this._eventAggregator.subscribe('stop', () => {
 			this.stop();
@@ -170,20 +161,17 @@ export class LifeCustomElement {
 		});
 		this._eventAggregator.subscribe('step', () => {
 			this._lifeWorkerService.getGeneration();
-			this._subscribeOnFirstData();
 		});
 		this._eventAggregator.subscribe('fillRandom', () => {
 			this._lifeWorkerService.fillRandom();
-			this._subscribeOnFirstData();
 		});
 		this._eventAggregator.subscribe('timeoutInterval', response => {
 			this._speedInterval = response;
 		});
 		this._eventAggregator.subscribe('cellSize', response => {
-			this._cellSize = response;
+			this.cellSize = response;
 			this._setSpaceSize();
 			this._lifeWorkerService.resize(this.spaceWidth, this.spaceHeight);
-			this._subscribeOnFirstData();
 		});
 		this._eventAggregator.subscribe('lifeRules', response => {
 			this._liferules = response.liferules;
