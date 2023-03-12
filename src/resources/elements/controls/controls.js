@@ -10,7 +10,6 @@ export class ControlsCustomElement {
 
 	constructor(eventAggregator) {
 		this._eventAggregator = eventAggregator;
-		this.startPulsor = true;
 		this.clearPulsor = false;
 		this.timeOut = 0;
 		this.addListeners();
@@ -19,7 +18,6 @@ export class ControlsCustomElement {
 	clear() {
 		this._eventAggregator.publish('clear');
 		this.clearPulsor = false;
-		this.startPulsor = true;
 	}
 
 	stop() {
@@ -28,17 +26,10 @@ export class ControlsCustomElement {
 
 	step() {
 		this._eventAggregator.publish('step');
-		this.startPulsor = false;
 	}
 
 	start() {
 		this._eventAggregator.publish('start');
-		this.startPulsor = false;
-	}
-
-	startNstop() {
-		this._eventAggregator.publish('startNstop');
-		this.startPulsor = false;
 	}
 
 	fillRandom() {
