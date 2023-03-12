@@ -35,7 +35,7 @@ export class LifeCustomElement {
 		this._addListeners();
 	}
 
-	showStats() {
+	_showStats() {
 		this._now = performance.now();
 		this.deltaTime = this._now - this._before;
 		const steps = this._lifeSteps - this._prevSteps;
@@ -52,15 +52,15 @@ export class LifeCustomElement {
 		});
 	}
 
-	getMeanOver100Gens() {
+	_getMeanOver100Gens() {
 		this._cellCounts.push(this._cellsAlive);
 		this._cellCounts = this._cellCounts.slice(-100);
 		const average = arr => arr.reduce((p, c) => p + c, 0) / arr.length;
 		return average(this._cellCounts);
 	}
 
-	getStable() {
-		if (Math.abs(this.getMeanOver100Gens() - this._cellsAlive) < 7) {
+	_getStable() {
+		if (Math.abs(this._getMeanOver100Gens() - this._cellsAlive) < 7) {
 			this._stableCountDown -= 1;
 		} else {
 			this._stableCountDown = 20;
@@ -71,7 +71,7 @@ export class LifeCustomElement {
 	_animateStep(checkStable) {
 		// It seems like calling this multiple times, speeds up everything even more.
 		this._getCells(true);
-		if (this._running && (!this.getStable() && checkStable || !checkStable)) {
+		if (this._running && (!this._getStable() && checkStable || !checkStable)) {
 			setTimeout(_ => { this._animateStep(checkStable); }, this._speedInterval);
 		} else {
 			this._stop();
@@ -84,7 +84,7 @@ export class LifeCustomElement {
 	}
 
 	_initLife() {
-		this.resetSteps();
+		this._resetSteps();
 		this.canvas = document.getElementById('life');
 		this._setSpaceSize();
 		this._lifeWorkerService.init(this.spaceWidth, this.spaceHeight, this._liferules);
@@ -96,23 +96,14 @@ export class LifeCustomElement {
 		this.spaceHeight = Math.floor(this.canvasHeight / this.cellSize);
 	}
 
-	resetSteps() {
+	_resetSteps() {
 		this._lifeSteps = 0; // Number of iterations / steps done
 		this._prevSteps = 0;
 	}
 
-	slowDown() {
-		this.speedWas = this._speedInterval;
-		this._speedInterval = 500;
-	}
-
-	fullSpeed() {
-		this._speedInterval = this.speedWas;
-	}
-
 	_clear() {
 		this._stop();
-		this.resetSteps();
+		this._resetSteps();
 		this._lifeWorkerService.clear();
 	}
 
@@ -129,13 +120,13 @@ export class LifeCustomElement {
 	_start() {
 		this._running = true;
 		this._animateStep(false);
-		this.statusUpdateHandle = setInterval(() => { this.showStats(); }, 500);
+		this.statusUpdateHandle = setInterval(() => { this._showStats(); }, 500);
 	}
 
 	_startNstop() {
 		this._running = true;
 		this._animateStep(true); // true checks for stable life
-		this.statusUpdateHandle = setInterval(() => { this.showStats(); }, 500);
+		this.statusUpdateHandle = setInterval(() => { this._showStats(); }, 500);
 	}
 
 	addCell(event) {
@@ -147,9 +138,21 @@ export class LifeCustomElement {
 		this._lifeWorkerService.addCell([realX, realY]);
 	}
 
+	slowDown() {
+		this.speedWas = this._speedInterval;
+		this._speedInterval = 500;
+	}
+
+	fullSpeed() {
+		this._speedInterval = this.speedWas;
+	}
+
 	_addListeners() {
 		this._eventAggregator.subscribe('clear', () => {
 			this._clear();
+			setTimeout(_ => {
+				this._showStats();
+			}, 200);
 		});
 		this._eventAggregator.subscribe('stop', () => {
 			this._stop();
@@ -165,6 +168,7 @@ export class LifeCustomElement {
 		});
 		this._eventAggregator.subscribe('fillRandom', () => {
 			this._lifeWorkerService.fillRandom();
+			this._resetSteps();
 		});
 		this._eventAggregator.subscribe('timeoutInterval', response => {
 			this._speedInterval = response;

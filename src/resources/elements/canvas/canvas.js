@@ -56,16 +56,16 @@ export class CanvasCustomElement {
 
 	_drawgrid() {
 		const cellSize = Math.max(this.cellSize, 4);
-		const maxX = this._element.width - cellSize;
-		const maxY = this._element.height - cellSize;
+		const maxX = this._element.width;
+		const maxY = this._element.height;
 		const step = cellSize * 2;
-		this._ctxOffscreen.fillStyle = "rgba(128, 128, 128, 0.1)";
+		this._ctxOffscreen.fillStyle = "rgba(128, 128, 128, 0.05)";
 		let y = 0;
 		let oddStep = 0;
-		for (; y < maxY; y += cellSize) {
+		for (; y <= maxY; y += cellSize) {
 			let x = oddStep;
 			oddStep = (oddStep + cellSize) % step;
-			for (; x < maxX; x += step) {
+			for (; x <= maxX; x += step) {
 				this._ctxOffscreen.fillRect(x, y, cellSize, cellSize);
 			}
 		}
