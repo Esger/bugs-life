@@ -24,9 +24,19 @@ export class CanvasCustomElement {
 		this._initCanvas();
 	}
 
+	_offscreenCanvasIsSupported() {
+		return typeof OffscreenCanvas !== "undefined"
+	}
+
 	_initCanvas() {
 		this._ctx = this._element.getContext('2d');
-		this._offScreenCanvas = new OffscreenCanvas(this._element.width, this._element.height);;
+		if (this._offscreenCanvasIsSupported()) {
+			this._offScreenCanvas = new OffscreenCanvas(this._element.width, this._element.height);
+		} else {
+			this._offScreenCanvas = document.createElement('canvas');
+			this._offScreenCanvas.width = this._element.width;
+			this._offScreenCanvas.height = this._element.height;
+		}
 		this._ctxOffscreen = this._offScreenCanvas.getContext('2d');
 	}
 

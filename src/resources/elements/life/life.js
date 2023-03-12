@@ -12,8 +12,6 @@ export class LifeCustomElement {
 	spaceWidth = 750;
 	spaceHeight = 464;
 
-	// TODO try this https://hacks.mozilla.org/2011/12/faster-canvas-pixel-manipulation-with-typed-arrays/
-
 	constructor(eventAggregator, lifeWorkerService) {
 		this._eventAggregator = eventAggregator;
 		this._lifeWorkerService = lifeWorkerService;
@@ -169,6 +167,9 @@ export class LifeCustomElement {
 		this._eventAggregator.subscribe('fillRandom', () => {
 			this._lifeWorkerService.fillRandom();
 			this._resetSteps();
+			setTimeout(_ => {
+				this._showStats();
+			}, 200);
 		});
 		this._eventAggregator.subscribe('timeoutInterval', response => {
 			this._speedInterval = response;
