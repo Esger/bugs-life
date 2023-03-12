@@ -92,7 +92,7 @@ export class LifeCustomElement {
 
 	_setSpaceSize() {
 		this.spaceWidth = Math.floor(this.canvasWidth / this.cellSize);
-		this.spaceHeight = Math.floor(this.canvasWidth / this.cellSize);
+		this.spaceHeight = Math.floor(this.canvasHeight / this.cellSize);
 	}
 
 	resetSteps() {
