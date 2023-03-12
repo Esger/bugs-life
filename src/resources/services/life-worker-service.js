@@ -6,6 +6,7 @@ export class LifeWorkerService {
 
 	constructor(eventAggregator) {
 		this.ea = eventAggregator;
+		this.wrkr = new Worker('./assets/life-worker.js');
 
 		this._buffer = [];
 		this._fillSlotIndex = 0;
@@ -13,16 +14,19 @@ export class LifeWorkerService {
 		this._maxIndex = 9;
 	}
 
-	get cells() {
+	getCells() {
 		return this._buffer;
 	}
 
+	getCellCount() {
+		return this._buffer.length;
+	}
+
 	init(w, h, liferules) {
-		this.wrkr = new Worker('./assets/life-worker.js');
 		this._buffer = [];
 		this.wrkr.onmessage = (e) => {
 			this._buffer = e.data.cells || [];
-			this.ea.publish('dataReady');
+			this.ea.publish('cellsReady');
 		};
 		const workerData = {
 			message: 'initialize',

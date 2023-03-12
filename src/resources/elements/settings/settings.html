@@ -8,7 +8,8 @@
 			<select change.delegate="setPreset()"
                     value.bind="selectedPreset">
                 <option repeat.for="preset of presets"  
-                    model.bind="$index" 
+                    model.bind="preset.id"
+					selected="preset.id == selectedPreset" 
                     innerhtml.one-time="preset.name"> 
                 </option> 
             </select>
