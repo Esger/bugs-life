@@ -1,10 +1,20 @@
 <template>
+	<require from="resources/elements/agents/agents"></require>
+	<require from="resources/elements/canvas/canvas"></require>
 	<require from="./life.css"></require>
+	<!-- <agents if.bind="cells"
+			food.bind="cells"
+			world-width.bind="spaceWidth"
+			world-height.bind="spaceHeight">
+		[${cells.length}, ${agents.length}]
+	</agents> -->
 	<canvas id="life"
-			width="750"
-			height="464"
+			width.bind="canvasWidth"
+			height.bind="canvasHeight"
+			cell-size.bind="cellSize"
 			click.delegate="addCell($event)"
 			mouseenter.trigger="slowDown()"
 			mouseleave.trigger="fullSpeed()">
 	</canvas>
+
 </template>
