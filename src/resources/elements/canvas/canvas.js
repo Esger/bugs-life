@@ -30,7 +30,7 @@ export class CanvasCustomElement {
 		this._ctxOffscreen = this._offScreenCanvas.getContext('2d');
 	}
 
-	clearSpace() {
+	_clearSpace() {
 		this._ctxOffscreen.fillStyle = "rgba(255, 255, 255, 1)";
 		this._ctxOffscreen.fillRect(0, 0, this._element.width, this._element.height);
 		this._ctx.fillStyle = "rgba(255, 255, 255, 1)";
@@ -110,12 +110,15 @@ export class CanvasCustomElement {
 		this._eventAggregator.subscribe('cellsReady', _ => {
 			this._redraw();
 		});
+		this._eventAggregator.subscribe('clear', _ => {
+			setTimeout(_ => {
+				this._clearSpace();
+			});
+		});
 		this._eventAggregator.subscribe('addCell', data => {
 			this._addCell(...data);
 		});
-		this._eventAggregator.subscribe('toggleGrid', _ => {
-			this._grid = !this._grid;
-		});
+		this._eventAggregator.subscribe('toggleGrid', _ => this._grid = !this._grid);
 		this._eventAggregator.subscribe('toggleTrails', () => {
 			this._trails = !this._trails;
 			this._opacity = 1 - this._trails * 0.9;

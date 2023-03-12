@@ -44,8 +44,9 @@ export class LifeCustomElement {
 
 		const speed = Math.floor(1000 * steps / this.deltaTime);
 		this._before = this._now;
+		const cellsAlive = this._lifeWorkerService.getCellCount();
 		this._eventAggregator.publish('stats', {
-			cellCount: this._cellsAlive,
+			cellCount: cellsAlive,
 			generations: this._lifeSteps,
 			speed: speed
 		});
@@ -58,7 +59,7 @@ export class LifeCustomElement {
 		return average(this._cellCounts);
 	}
 
-	get stable() {
+	getStable() {
 		if (Math.abs(this.getMeanOver100Gens() - this._cellsAlive) < 7) {
 			this._stableCountDown -= 1;
 		} else {
@@ -68,17 +69,17 @@ export class LifeCustomElement {
 	}
 
 	_animateStep(checkStable) {
+		// It seems like calling this multiple times, speeds up everything even more.
 		this._getCells(true);
-		if (this._running && (!this.stable && checkStable || !checkStable)) {
+		if (this._running && (!this.getStable() && checkStable || !checkStable)) {
 			setTimeout(_ => { this._animateStep(checkStable); }, this._speedInterval);
 		} else {
-			this.stop();
+			this._stop();
 		}
 	}
 
 	_getCells(generate) {
 		if (generate) this._lifeWorkerService.getGeneration();
-		// this._cellsAlive = this.cells.length;
 		this._lifeSteps += 1;
 	}
 
@@ -109,13 +110,13 @@ export class LifeCustomElement {
 		this._speedInterval = this.speedWas;
 	}
 
-	clear() {
-		this.stop();
+	_clear() {
+		this._stop();
 		this.resetSteps();
 		this._lifeWorkerService.clear();
 	}
 
-	stop() {
+	_stop() {
 		this._running = false;
 		if (!this.statusUpdateHandle) return;
 
@@ -125,13 +126,13 @@ export class LifeCustomElement {
 		}, 333);
 	}
 
-	start() {
+	_start() {
 		this._running = true;
 		this._animateStep(false);
 		this.statusUpdateHandle = setInterval(() => { this.showStats(); }, 500);
 	}
 
-	startNstop() {
+	_startNstop() {
 		this._running = true;
 		this._animateStep(true); // true checks for stable life
 		this.statusUpdateHandle = setInterval(() => { this.showStats(); }, 500);
@@ -148,16 +149,16 @@ export class LifeCustomElement {
 
 	_addListeners() {
 		this._eventAggregator.subscribe('clear', () => {
-			this.clear();
+			this._clear();
 		});
 		this._eventAggregator.subscribe('stop', () => {
-			this.stop();
+			this._stop();
 		});
 		this._eventAggregator.subscribe('start', () => {
-			this.start();
+			this._start();
 		});
 		this._eventAggregator.subscribe('startNstop', () => {
-			this.startNstop();
+			this._startNstop();
 		});
 		this._eventAggregator.subscribe('step', () => {
 			this._lifeWorkerService.getGeneration();

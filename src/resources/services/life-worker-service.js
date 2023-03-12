@@ -18,6 +18,10 @@ export class LifeWorkerService {
 		return this._buffer;
 	}
 
+	getCellCount() {
+		return this._buffer.length;
+	}
+
 	init(w, h, liferules) {
 		this._buffer = [];
 		this.wrkr.onmessage = (e) => {
