@@ -1,151 +1,159 @@
 controls {
-    display        : flex;
-    justify-content: space-between;
-    margin-bottom  : 36px;
+	display        : flex;
+	justify-content: space-between;
+	margin-bottom  : 36px;
 
-    life-controls {
-        display        : flex;
-        justify-content: flex-start;
-        align-items    : center;
+	life-controls {
+		display        : flex;
+		justify-content: flex-start;
+		align-items    : center;
 
-        a {
-            width           : 24px;
-            height          : 21px;
-            margin-right    : 2px;
-            background-color: transparent;
-        }
+		a {
+			width           : 24px;
+			height          : 21px;
+			margin-right    : 2px;
+			background-color: transparent;
+		}
 
-        [class*='button'] {
-            margin-right: 10px;
-        }
+		[class*='button'] {
+			margin-right: 10px;
+		}
 
-        [type='range'] {
-            margin: 0;
-        }
+		[type='range'] {
+			margin: 0;
+		}
 
-        .button() {
-            width        : 20px;
-            height       : 20px;
-            border-radius: 2px;
-        }
+		.button() {
+			width        : 20px;
+			height       : 20px;
+			border-radius: 2px;
+		}
 
-        .clearbutton {
-            .button;
-            box-sizing: border-box;
-            border    : 2px solid #8a8a00;
+		.clearbutton {
+			.button;
+			box-sizing: border-box;
+			border    : 2px solid #8a8a00;
 
-            &.pulsor::before {
-                content      : '';
-                display      : block;
-                width        : calc(~'100% + 4px');
-                height       : calc(~'100% + 4px');
-                margin       : -3px;
-                border       : 1px solid whitesmoke;
-                border-radius: 3px;
-            }
+			&.pulsor::before {
+				content      : '';
+				display      : block;
+				width        : calc(~'100% + 4px');
+				height       : calc(~'100% + 4px');
+				margin       : -3px;
+				border       : 1px solid whitesmoke;
+				border-radius: 3px;
+			}
 
-            &:hover {
-                border-color: whitesmoke;
-            }
-        }
+			&:hover {
+				border-color: whitesmoke;
+			}
+		}
 
-        .startbutton, .startnstopbutton {
-            position: relative;
-            width   : 33px;
+		.startbutton,
+		.startnstopbutton {
+			position: relative;
+			width   : 33px;
 
-            &::after, &::before {
-                content     : '';
-                display     : block;
-                position    : absolute;
-                left        : 0;
-                top         : 0;
-                width       : 0;
-                height      : 0;
-                border-style: solid;
-                border-width: 10px 0 10px 17.3px;
-                border-color: transparent transparent transparent #8a8a00;
-            }
+			&::after,
+			&::before {
+				content     : '';
+				display     : block;
+				position    : absolute;
+				left        : 0;
+				top         : 0;
+				width       : 0;
+				height      : 0;
+				border-style: solid;
+				border-width: 10px 0 10px 17.3px;
+				border-color: transparent transparent transparent #8a8a00;
+			}
 
-            &::after {
-                right: 0;
-                left : auto;
-            }
+			&::after {
+				right: 0;
+				left : auto;
+			}
 
-            &:hover {
-                &::after, &::before {
-                    border-left-color: whitesmoke;
-                }
-            }
+			&:hover {
 
-        }
+				&::after,
+				&::before {
+					border-left-color: whitesmoke;
+				}
+			}
 
-        .startnstopbutton {
-            display        : flex;
-            justify-content: flex-end;
+		}
 
-            span {
-                flex            : 0 0 2px;
-                content         : '';
-                background-color: #8a8a00;
+		.startnstopbutton {
+			display        : flex;
+			justify-content: flex-end;
 
-            }
+			span {
+				flex            : 0 0 2px;
+				content         : '';
+				background-color: #8a8a00;
 
-            &:hover span {
-                background-color: whitesmoke;
-            }
-            width          : 31px;
+			}
 
-        }
+			&:hover span {
+				background-color: whitesmoke;
+			}
 
-        .stopbutton {
-            .button;
-            box-sizing      : border-box;
-            border          : 2px solid #8a8a00;
-            background-color: #8a8a00;
+			width : 31px;
 
-            &:hover {
-                border-color    : whitesmoke;
-                background-color: whitesmoke;
-            }
-        }
+		}
 
-        .stepbutton {
-            width       : 0;
-            height      : 0;
-            border-style: solid;
-            border-width: 10px 0 10px 17.3px;
-            border-color: transparent transparent transparent #8a8a00;
+		.stopbutton {
+			.button;
+			box-sizing      : border-box;
+			border          : 2px solid #8a8a00;
+			background-color: #8a8a00;
 
-            &:hover {
-                border-left-color: whitesmoke;
-            }
-        }
+			&:hover {
+				border-color    : whitesmoke;
+				background-color: whitesmoke;
+			}
+		}
 
-        .randombutton {
-            .button;
-            background-image: url("random-button.svg");
+		.stepbutton {
+			width       : 0;
+			height      : 0;
+			border-style: solid;
+			border-width: 10px 0 10px 17.3px;
+			border-color: transparent transparent transparent #8a8a00;
 
-            &:hover {
-                background-position: -20px 0;
-            }
-        }
+			&:hover {
+				border-left-color: whitesmoke;
+			}
+		}
 
-        .trails {
-            margin-left: 20px;
-        }
+		.randombutton {
+			.button;
+			background-image: url("random-button.svg");
 
-        .pulsor:not(:hover), .pulsor:not(:hover)::after, .pulsor:not(:hover)::before {
-            box-shadow: 0 0 30px whitesmoke;
-            animation : pulsate .3s infinite alternate;
-        }
-        @keyframes pulsate {
-            from {
-                box-shadow: 0 0 10px rgba(255,255,255,0);
-            }
+			&:hover {
+				background-position: -20px 0;
+			}
+		}
 
-            to {
-                box-shadow: 0 0 20px rgba(255,255,255,1);
-            }
-        }
-    }
+		.trails {
+			margin-left: 20px;
+		}
+
+		.pulsor:not(:hover),
+		.pulsor:not(:hover)::after,
+		.pulsor:not(:hover)::before {
+			box-shadow: 0 0 20px white;
+			animation : pulsate .333s infinite alternate;
+		}
+
+		@keyframes pulsate {
+			from {
+				box-shadow: 0 0 10px rgba(255, 255, 255, 0);
+			}
+
+			to {
+				box-shadow: 0 0 20px rgba(255, 255, 255, 1);
+			}
+		}
+	}
 }
