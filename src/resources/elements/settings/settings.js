@@ -44,7 +44,7 @@ export class SettingsCustomElement {
 		this.trails = true;
 		this.cellSize = 2;
 		this.cellSizeExp = 1;
-		this.minCellSize = 0;
+		this.minCellSize = -1;
 		this.maxCellSize = 5;
 		this.setPreset();
 	}
