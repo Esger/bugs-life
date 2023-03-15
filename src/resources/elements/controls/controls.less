@@ -1,17 +1,20 @@
 controls {
 	display        : flex;
 	justify-content: space-between;
+	align-items    : flex-start;
 	margin-bottom  : 36px;
 
 	life-controls {
 		display        : flex;
 		justify-content: flex-start;
+		flex-wrap      : wrap;
 		align-items    : center;
 
 		a {
 			width           : 24px;
 			height          : 21px;
 			margin-right    : 2px;
+			margin-bottom   : 16px;
 			background-color: transparent;
 		}
 
@@ -135,8 +138,9 @@ controls {
 			}
 		}
 
-		.trails {
-			margin-left: 20px;
+		.interval {
+			display    : inline-flex;
+			align-items: center;
 		}
 
 		.pulsor:not(:hover),

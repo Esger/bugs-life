@@ -17,11 +17,13 @@ export class CanvasCustomElement {
 		this._grid = false;
 		this._trails = true;
 		this._opacity = 1 - this._trails * 0.9;
-		this._addListeners();
 	}
 
-	bind() {
-		this._initCanvas();
+	attached() {
+		setTimeout(_ => { // wait for canvas dimensions to be set in life.js
+			this._initCanvas();
+			this._addListeners();
+		});
 	}
 
 	_offscreenCanvasIsSupported() {

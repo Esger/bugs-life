@@ -2,17 +2,14 @@ import { inject } from 'aurelia-framework';
 import { EventAggregator } from 'aurelia-event-aggregator';
 import { LifeWorkerService } from 'resources/services/life-worker-service';
 
-@inject(EventAggregator, LifeWorkerService)
+@inject(Element, EventAggregator, LifeWorkerService)
 export class LifeCustomElement {
 
 	statusUpdateHandle = null;
 	cells = null;
-	canvasWidth = 750;
-	canvasHeight = 464;
-	spaceWidth = 750;
-	spaceHeight = 464;
 
-	constructor(eventAggregator, lifeWorkerService) {
+	constructor(element, eventAggregator, lifeWorkerService) {
+		this._element = element;
 		this._eventAggregator = eventAggregator;
 		this._lifeWorkerService = lifeWorkerService;
 		this.cellSize = 2;
@@ -30,6 +27,10 @@ export class LifeCustomElement {
 	}
 
 	attached() {
+		this.canvasWidth = Math.ceil($(this._element).width());
+		this.canvasHeight = Math.ceil($(this._element).height());
+		this.spaceWidth = this.canvasWidth;
+		this.spaceHeight = this.canvasHeight;
 		this._addListeners();
 	}
 

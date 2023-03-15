@@ -23,13 +23,15 @@
            class="randombutton ${randomPulsor ? 'pulsor' : ''}"
            title="Fill randomly"
            click.delegate="fillRandom()"></a>
-		<input type="range"
-               min.one-time="0"
-               max.one-time="200"
-               step="20"
-               value.bind="timeOut"
-               change.delegate="setTimeoutInterval()">
-		<output value.bind="'interval: ' + timeOut"></output>
+		<span class="interval">
+			   <input type="range"
+					  min.one-time="0"
+					  max.one-time="200"
+					  step="20"
+					  value.bind="timeOut"
+					  change.delegate="setTimeoutInterval()">
+			   <output value="interval: ${timeOut}">
+		</span>
 
 	</life-controls>
 	<stats></stats>

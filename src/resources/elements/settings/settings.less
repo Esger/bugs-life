@@ -1,3 +1,8 @@
+.lifeRulesContainer {
+	display       : flex;
+	flex-direction: column;
+}
+
 life-rules {
 	display  : flex;
 	flex-wrap: wrap;
@@ -30,6 +35,28 @@ row-labels p {
 			font-size     : 14px;
 			letter-spacing: 1px;
 			text-transform: uppercase;
+
+			&:not(.presets) {
+				@media screen and (max-width : 808px) {
+					margin-bottom: 42px;
+				}
+
+				@media screen and (max-width : 498px) {
+					margin-bottom: 73px;
+				}
+
+				@media screen and (max-width : 354px) {
+					margin-bottom: 135px;
+				}
+			}
 		}
 	}
+}
+
+.cellSize {
+	margin-bottom: 12px;
+}
+
+output.cellSize {
+	margin-right: 32px;
 }
