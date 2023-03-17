@@ -1,19 +1,19 @@
 import { inject, bindable } from 'aurelia-framework';
 import { EventAggregator } from 'aurelia-event-aggregator';
 import { LifeWorkerService } from 'resources/services/life-worker-service';
-
-@inject(Element, EventAggregator, LifeWorkerService)
+import { AgentsDataService } from 'resources/services/agents-data-service';
+@inject(Element, EventAggregator, LifeWorkerService, AgentsDataService)
 export class CanvasCustomElement {
 	@bindable cells;
-	@bindable agents;
 	@bindable cellSize;
 
 	// TODO make a worker service for drawing
 
-	constructor(element, eventAggregator, lifeWorkerService) {
+	constructor(element, eventAggregator, lifeWorkerService, agentsDataService) {
 		this._element = element;
 		this._eventAggregator = eventAggregator;
 		this._lifeWorkerService = lifeWorkerService;
+		this._agentsDataService = agentsDataService;
 		this._grid = false;
 		this._trails = true;
 		this._opacity = 1 - this._trails * 0.9;
@@ -54,7 +54,7 @@ export class CanvasCustomElement {
 		this._ctxOffscreen.fillRect(0, 0, this._element.width, this._element.height);
 		this._grid && this._drawgrid();
 		this._drawcells();
-		this.agents && this._drawAgents();
+		this._agents && this._drawAgents();
 	}
 
 	_drawcells() {
@@ -90,7 +90,7 @@ export class CanvasCustomElement {
 	}
 
 	_drawAgents() {
-		this.agents?.forEach(agent => {
+		this._agents?.forEach(agent => {
 			const adult = (agent.adult() && !agent.pregnant) ? 1 : 0;
 			const scale = Math.max(agent.radius, agent.minRadius) / 16;
 			this._ctxOffscreen.save();
@@ -121,6 +121,9 @@ export class CanvasCustomElement {
 	_addListeners() {
 		this._eventAggregator.subscribe('cellsReady', _ => {
 			this._redraw();
+		});
+		this._eventAggregator.subscribe('agentsReady', _ => {
+			this._agents = this._agentsDataService.getAgents();
 		});
 		this._eventAggregator.subscribe('clear', _ => {
 			setTimeout(_ => {

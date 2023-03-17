@@ -1,37 +1,38 @@
 import { inject, bindable } from 'aurelia-framework';
 import { EventAggregator } from 'aurelia-event-aggregator';
-import { Agent } from "resources/components/agent.js"
+import { Agent } from 'resources/components/agent.js';
 import { LifeWorkerService } from 'resources/services/life-worker-service';
+import { AgentsDataService } from 'resources/services/agents-data-service';
 
-@inject(EventAggregator, Agent, LifeWorkerService)
+@inject(EventAggregator, Agent, LifeWorkerService, AgentsDataService)
 export class AgentsCustomElement {
-	@bindable food;
 	@bindable worldWidth;
 	@bindable worldHeight;
-	agents = [];
 
-	constructor(eventAggregator, agent, lifeWorkerService) {
+	constructor(eventAggregator, agent, lifeWorkerService, agentsDataService) {
 		this._eventAggregator = eventAggregator;
 		this._lifeWorkerService = lifeWorkerService;
+		this._agentsDataService = agentsDataService;
+		this._agents = [];
 		this._agent = agent;
-		this._addAgent();
-		this._addListeners();
+	}
+
+	bind() {
 	}
 
 	attached() {
-		this._cellSizeSubscription = this._eventAggregator.subscribe('cellSize', _ => {
-			this.agents.forEach(agent => agent.setWorldSize(this.worldWidth, this.worldHeight));
+		console.log(this.worldWidth, this.worldHeight);
+
+		setTimeout(() => {
+			this._addAgent();
+			this._addListeners();
 		});
-		this._agentImages = {
-			'male': [$('.bug_0')[0], $('.bug-0')[0]],
-			'female': [$('.bug_1')[0], $('.bug-1')[0]]
-		}
 	}
 
 	_addAgent() {
-		const agent = this._agent.randomAgent();
-		agent => agent.setImages(this._agentImages);
-		this.agents.push(agent);
+		const agent = this._agent.createAgent(this.worldWidth, this.worldHeight);
+		this._agents.push(agent);
+		this._agentsDataService.setAgents(this._agents);
 	}
 
 	_addListeners() {
@@ -41,8 +42,9 @@ export class AgentsCustomElement {
 	}
 
 	_stepAgents() {
-		this.agents.forEach(agent => {
-			agent.step(this.food);
+		const food = this._lifeWorkerService.getCells();
+		this._agents.forEach(agent => {
+			agent.step(food);
 		});
 		this._eventAggregator.publish('agentsReady');
 	}
