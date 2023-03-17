@@ -14,7 +14,11 @@ export class ControlsCustomElement {
 		this.stopPulsor = false;
 		this.startPulsor = true;
 		this.randomPulsor = false;
-		this.timeOut = 0;
+		this.timeOut = 40;
+	}
+
+	attached() {
+		this.setTimeoutInterval();
 	}
 
 	clear() {

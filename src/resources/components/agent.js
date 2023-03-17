@@ -14,7 +14,7 @@ export class Agent {
 		this.radius = 15;
 		this.gender = 'male';
 		this.pregnant = false;
-		this.sensingDistance = 15;
+		this.sensingDistance = 30;
 		this.turnAmount = 2;
 		this._agentImages = {
 			'male': [$('.bug_0')[0], $('.bug-0')[0]],

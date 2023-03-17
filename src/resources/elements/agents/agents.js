@@ -6,8 +6,9 @@ import { AgentsDataService } from 'resources/services/agents-data-service';
 
 @inject(EventAggregator, Agent, LifeWorkerService, AgentsDataService)
 export class AgentsCustomElement {
-	@bindable worldWidth;
-	@bindable worldHeight;
+	@bindable canvasWidth;
+	@bindable canvasHeight;
+	@bindable cellSize;
 
 	constructor(eventAggregator, agent, lifeWorkerService, agentsDataService) {
 		this._eventAggregator = eventAggregator;
@@ -21,7 +22,9 @@ export class AgentsCustomElement {
 	}
 
 	attached() {
-		console.log(this.worldWidth, this.worldHeight);
+		this._worldWidth = this.canvasWidth / this.cellSize;
+		this._worldHeight = this.canvasHeight / this.cellSize;
+		console.log(this._worldWidth, this._worldHeight);
 
 		setTimeout(() => {
 			this._addAgent();
@@ -30,7 +33,7 @@ export class AgentsCustomElement {
 	}
 
 	_addAgent() {
-		const agent = this._agent.createAgent(this.worldWidth, this.worldHeight);
+		const agent = this._agent.createAgent(this._worldWidth, this._worldHeight);
 		this._agents.push(agent);
 		this._agentsDataService.setAgents(this._agents);
 	}
