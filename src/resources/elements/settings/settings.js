@@ -10,7 +10,7 @@ import {
 export class SettingsCustomElement {
 
 	constructor(eventAggregator) {
-		this.ea = eventAggregator;
+		this._eventAggregator = eventAggregator;
 		this.liferules = [];
 		this.selectedPreset = 6;
 		this.presets = [
@@ -50,16 +50,16 @@ export class SettingsCustomElement {
 	}
 
 	toggleTrails() {
-		this.ea.publish('toggleTrails', this.trails);
+		this._eventAggregator.publish('toggleTrails', this.trails);
 	}
 
 	toggleGrid() {
-		this.ea.publish('toggleGrid', this.grid);
+		this._eventAggregator.publish('toggleGrid', this.grid);
 	}
 
 	setCellSize() {
 		this.cellSize = Math.pow(2, this.cellSizeExp);
-		this.ea.publish('cellSize', this.cellSize);
+		this._eventAggregator.publish('cellSize', this.cellSize);
 	}
 
 	setPreset() {
@@ -78,7 +78,7 @@ export class SettingsCustomElement {
 	}
 
 	publishRules(init) {
-		this.ea.publish('lifeRules', {
+		this._eventAggregator.publish('lifeRules', {
 			liferules: this.liferules,
 			init: init
 		});

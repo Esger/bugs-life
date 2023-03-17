@@ -18,18 +18,18 @@ export class AgentsCustomElement {
 		this._agent = agent;
 	}
 
-	bind() {
-	}
-
 	attached() {
-		this._worldWidth = this.canvasWidth / this.cellSize;
-		this._worldHeight = this.canvasHeight / this.cellSize;
-		console.log(this._worldWidth, this._worldHeight);
-
+		this._setWorldWidth();
 		setTimeout(() => {
 			this._addAgent();
 			this._addListeners();
 		});
+	}
+
+	_setWorldWidth() {
+		this._worldWidth = this.canvasWidth / this.cellSize;
+		this._worldHeight = this.canvasHeight / this.cellSize;
+		this._agents.forEach(agent => agent.setWorldSize(this._worldWidth, this._worldHeight));
 	}
 
 	_addAgent() {
@@ -39,8 +39,12 @@ export class AgentsCustomElement {
 	}
 
 	_addListeners() {
-		this._eventAggregator.subscribe('cellsReady', _ => {
+		this._cellsReadySubscription = this._eventAggregator.subscribe('cellsReady', _ => {
 			this._stepAgents();
+		});
+		this._cellSizeSubscription = this._eventAggregator.subscribe('cellSize', cellSize => {
+			this.cellSize = cellSize;
+			this._setWorldWidth();
 		});
 	}
 
@@ -50,5 +54,9 @@ export class AgentsCustomElement {
 			agent.step(food);
 		});
 		this._eventAggregator.publish('agentsReady');
+	}
+
+	detached() {
+		this._cellsReadySubscription.dispose();
 	}
 }
