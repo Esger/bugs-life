@@ -22,6 +22,23 @@ export class LifeWorkerService {
 		return this._buffer.length;
 	}
 
+	_withinBox(cellX, cellY, x, y, distance) {
+		const minX = x - distance;
+		const maxX = x + distance;
+		const minY = y - distance;
+		const maxY = y + distance;
+		const withinBox = ((cellX > minX || cellX > minX + this._worldWidth) &&
+			(cellX < maxX || cellX < maxX - this._worldWidth) &&
+			(cellY > minY || cellY > minY + this._worldHeight) &&
+			(cellY < maxY || cellY < maxY - this._worldWidth));
+		return withinBox;
+	}
+
+	getBoxCells(x, y, distance) {
+		const boxCells = this._buffer.filter(cell => this._withinBox(cell[0], cell[1], x, y, distance));
+		return boxCells;
+	}
+
 	init(w, h, liferules) {
 		this._buffer = [];
 		this.wrkr.onmessage = (e) => {
@@ -34,6 +51,8 @@ export class LifeWorkerService {
 			h: h,
 			liferules: liferules
 		};
+		this._worldWidth = w;
+		this._worldHeight = h;
 		this.wrkr.postMessage(workerData);
 	}
 
@@ -47,6 +66,8 @@ export class LifeWorkerService {
 			w: w,
 			h: h
 		};
+		this._worldWidth = w;
+		this._worldHeight = h;
 		this.wrkr.postMessage(workerData);
 	}
 

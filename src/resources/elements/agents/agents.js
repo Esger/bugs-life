@@ -20,7 +20,7 @@ export class AgentsCustomElement {
 
 	attached() {
 		this._setWorldWidth();
-		setTimeout(() => {
+		setTimeout(_ => {
 			this._addAgent();
 			this._addListeners();
 		});
@@ -33,7 +33,7 @@ export class AgentsCustomElement {
 	}
 
 	_addAgent() {
-		const agent = this._agent.createAgent(this._worldWidth, this._worldHeight);
+		const agent = this._agent.createAgent(this._worldWidth, this._worldHeight, this._lifeWorkerService);
 		this._agents.push(agent);
 		this._agentsDataService.setAgents(this._agents);
 	}
@@ -46,6 +46,7 @@ export class AgentsCustomElement {
 			this.cellSize = cellSize;
 			this._setWorldWidth();
 		});
+		this._addAgentSubscription = this._eventAggregator.subscribe('addAgent', _ => this._addAgent());
 	}
 
 	_stepAgents() {
@@ -58,5 +59,6 @@ export class AgentsCustomElement {
 
 	detached() {
 		this._cellsReadySubscription.dispose();
+		this._cellSizeSubscription.dispose();
 	}
 }

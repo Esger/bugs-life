@@ -1,6 +1,7 @@
 <template>
 	<require from="resources/elements/settings/settings"></require>
 	<require from="resources/elements/story/story"></require>
+	<require from="resources/elements/agent-controls/agent-controls"></require>
 	<require from="./tabs.css"></require>
 	<tab-buttons>
 		<tab-button repeat.for="tab of tabs"
@@ -10,5 +11,6 @@
 	<tab-contents>
 		<settings if.bind="tabs[0].active"></settings>
 		<story if.bind="tabs[1].active"></story>
+		<agent-controls if.bind="tabs[2].active"></agent-controls>
 	</tab-contents>
 </template>

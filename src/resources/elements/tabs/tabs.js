@@ -18,6 +18,10 @@ export class TabsCustomElement {
 			{
 				title: 'Story',
 				active: false
+			},
+			{
+				title: 'Agents',
+				active: false,
 			}
 		]
 	}
