@@ -3,6 +3,7 @@ var conway = {
 	cellsAlive: 0, // Number of cells alive
 	fillRatio: 0.2, // Percentage of available cells that will be set alive initially (20)
 	liferules: [],
+	eatenAreas: [],
 	numberCells: 0, // Number of available cells
 	spaceHeight: 0,
 	spaceWidth: 0,
@@ -51,6 +52,18 @@ var conway = {
 		conway.liveCells = cells;
 	},
 
+	storeEatenArea: function (area) {
+		conway.eatenAreas.push(area);
+	},
+
+	outsideEatenAreas: function (x, y) {
+		const insideEatenAreas = conway.eatenAreas.some(function (area) {
+			const inArea = Math.pow(x - area.x, 2) + Math.pow(y - area.y, 2) < Math.pow(area.radius, 2);
+			return inArea;
+		})
+		return !insideEatenAreas;
+	},
+
 	zeroNeighbours: function () {
 		const count = conway.numberCells;
 
@@ -92,12 +105,13 @@ var conway = {
 		let i = 0;
 		for (; i < count; i += 1) {
 			if (conway.liferules[conway.neighbours[i]]) {
-				let y = Math.floor(i / rowLength);
-				let x = i % rowLength;
-				// let x = i - (y * rowLength);
-				conway.liveCells.push([x, y]);
+				const y = Math.floor(i / rowLength);
+				const x = i % rowLength;
+				if (conway.outsideEatenAreas(x, y))
+					conway.liveCells.push([x, y]);
 			}
 		}
+
 	},
 
 	sendScreen: function (message) {
@@ -112,6 +126,7 @@ var conway = {
 		conway.zeroNeighbours();
 		conway.updateNeighbours();
 		conway.evalNeighbours();
+		conway.eatenAreas = [];
 		conway.sendScreen('generation');
 		conway.lifeSteps += 1;
 	}
@@ -141,6 +156,9 @@ onmessage = function (e) {
 			case 'setCells':
 				conway.setCells(data.cells);
 				conway.sendScreen('setCells');
+				break;
+			case 'killCells':
+				conway.storeEatenArea(data);
 				break;
 			case 'step':
 				conway.step();

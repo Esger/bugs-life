@@ -5,17 +5,17 @@ export class Agent {
 		this._worldHeight = worldHeight;
 		this._lifeWorkerService = lifeWorkerService;
 		this._goldenRatio = 1.618;
-		this.minRadius = 15;
-		this.maxRadius = 15;
+		this.minRadius = 5;
+		this.maxRadius = 20;
 		this._adultRadius = this._maxRadius / this._goldenRatio;
 
 		this.angle = 0;
 		this.x = Math.round(this._worldWidth / 2);
 		this.y = Math.round(this._worldHeight / 2);
-		this.radius = 15;
+		this.radius = 10;
 		this.gender = 'male';
 		this.pregnant = false;
-		this.sensingDistance = 40;
+		this.sensingDistance = this.radius * 2;
 		this.turnAmount = 5;
 		this._agentImages = {
 			'male': [$('.bug_0')[0], $('.bug-0')[0]],
@@ -32,6 +32,7 @@ export class Agent {
 		};
 
 		this.step = _ => {
+			this._eat();
 			const dy = Math.sin(this.angle);
 			const dx = Math.cos(this.angle);
 			this.x = this._xWrap(this.x + dx);
@@ -40,19 +41,23 @@ export class Agent {
 			this.angle += this.turnAmount * angleNudge * Math.PI / 360;
 		}
 
+		this._eat = _ => {
+			const cellsInBox = this._lifeWorkerService.getBoxCells(this.x, this.y, this.radius);
+			const cellsEaten = cellsInBox.filter(cell => this._cellIsCovered(cell));
+
+			this._lifeWorkerService.killCells(this.x, this.y, this.radius);
+		};
+
+		this._cellIsCovered = cell => (Math.pow(cell[0] - this.x, 2) + Math.pow(cell[1] - this.y, 2)) < Math.pow(this.radius, 2);
+
 		this._axis = x => {
 			const a = Math.tan(this.angle);
-			return a * (x - this.x) + this.y;
-			// const y = Math.tan(this.angle) * this.x + this.y;
-			// return y;
+			const y = a * (x - this.x) + this.y;
+			return y;
 		};
 
 		this._senseFood = _ => {
 			const cellsAhead = this._withinBoxAhead(this.x, this.y);
-			// let perpendicularAxis = function (x) {
-			// 	let a = Math.tan(self.direction - PI / 2);
-			// 	return a * (x - self.x) + self.y;
-			// };
 			const leftCells = cellsAhead?.filter(cell => cell[1] > this._axis(cell[0]));
 			const lessCellsOnLeft = leftCells?.length < cellsAhead?.length / 2
 			const angleIncrement = [1, -1][lessCellsOnLeft * 1];

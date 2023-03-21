@@ -6,7 +6,7 @@ export class LifeWorkerService {
 
 	constructor(eventAggregator) {
 		this.ea = eventAggregator;
-		this.wrkr = new Worker('./assets/life-worker.js');
+		this._lifeWorker = new Worker('./assets/life-worker.js');
 
 		this._buffer = [];
 		this._fillSlotIndex = 0;
@@ -39,9 +39,19 @@ export class LifeWorkerService {
 		return boxCells;
 	}
 
+	killCells(x, y, radius) {
+		const workerData = {
+			message: 'killCells',
+			x: Math.round(x),
+			y: Math.round(y),
+			radius: radius
+		}
+		this._lifeWorker.postMessage(workerData);
+	}
+
 	init(w, h, liferules) {
 		this._buffer = [];
-		this.wrkr.onmessage = (e) => {
+		this._lifeWorker.onmessage = (e) => {
 			this._buffer = e.data.cells || [];
 			this.ea.publish('cellsReady');
 		};
@@ -53,7 +63,7 @@ export class LifeWorkerService {
 		};
 		this._worldWidth = w;
 		this._worldHeight = h;
-		this.wrkr.postMessage(workerData);
+		this._lifeWorker.postMessage(workerData);
 	}
 
 	resize(w, h) {
@@ -68,7 +78,7 @@ export class LifeWorkerService {
 		};
 		this._worldWidth = w;
 		this._worldHeight = h;
-		this.wrkr.postMessage(workerData);
+		this._lifeWorker.postMessage(workerData);
 	}
 
 	clear() {
@@ -76,14 +86,14 @@ export class LifeWorkerService {
 		const workerData = {
 			message: 'clear',
 		};
-		this.wrkr.postMessage(workerData);
+		this._lifeWorker.postMessage(workerData);
 	}
 
 	fillRandom() {
 		const workerData = {
 			message: 'fillRandom',
 		};
-		this.wrkr.postMessage(workerData);
+		this._lifeWorker.postMessage(workerData);
 	}
 
 	changeRules(rules) {
@@ -91,7 +101,7 @@ export class LifeWorkerService {
 			message: 'rules',
 			rules: rules
 		};
-		this.wrkr.postMessage(workerData);
+		this._lifeWorker.postMessage(workerData);
 	}
 
 	addCell(xy) {
@@ -103,14 +113,14 @@ export class LifeWorkerService {
 			message: 'setCells',
 			cells: cells
 		};
-		this.wrkr.postMessage(workerData);
+		this._lifeWorker.postMessage(workerData);
 	}
 
 	getGeneration() {
 		const workerData = {
 			message: 'step'
 		};
-		this.wrkr.postMessage(workerData);
+		this._lifeWorker.postMessage(workerData);
 	}
 
 }

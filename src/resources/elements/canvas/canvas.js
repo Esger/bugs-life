@@ -91,12 +91,12 @@ export class CanvasCustomElement {
 
 	_drawAgents() {
 		this._agents?.forEach(agent => {
-			const adult = (agent.adult() && !agent.pregnant) ? 1 : 0;
-			const scale = Math.max(agent.radius, agent.minRadius) / 16;
+			// const adult = (agent.adult() && !agent.pregnant) ? 1 : 0;
+			// const scale = Math.max(agent.radius, agent.minRadius) / 16;
 			this._ctxOffscreen.save();
 			this._ctxOffscreen.translate(agent.x * this.cellSize, agent.y * this.cellSize);
 			this._ctxOffscreen.rotate(agent.angle);
-			this._ctxOffscreen.scale(scale, scale);
+			this._ctxOffscreen.scale(this.cellSize, this.cellSize);
 			this._ctxOffscreen.drawImage(agent.image(), - 16, - 16);
 			this._ctxOffscreen.restore();
 		});
