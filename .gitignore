@@ -34,3 +34,5 @@ node_modules
 /scripts
 /src/environment.js
 /dist
+
+.vscode/settings.json
