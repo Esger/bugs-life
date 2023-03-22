@@ -20,7 +20,7 @@ export class TabsCustomElement {
 				active: false
 			},
 			{
-				title: 'Agents',
+				title: 'Bugs',
 				active: false,
 			}
 		]

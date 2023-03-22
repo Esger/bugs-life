@@ -39,7 +39,7 @@ export class LifeWorkerService {
 		return boxCells;
 	}
 
-	killCells(x, y, radius) {
+	eatCells(x, y, radius) {
 		const workerData = {
 			message: 'killCells',
 			x: Math.round(x),
