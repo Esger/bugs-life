@@ -63,22 +63,19 @@ export class Agent {
 		};
 
 		this._senseFood = _ => {
+
 			const cellsAhead = this._withinBoxAhead(this.x, this.y);
+			if (!cellsAhead?.length) return 0;
+
 			const leftCells = cellsAhead?.filter(cell => cell[1] > this._axis(cell[0]));
-			const lessCellsOnLeft = leftCells?.length < cellsAhead?.length / 2
+			const totalLeftCells = leftCells?.length ?? 0;
+			const totalRightCells = cellsAhead?.length - totalLeftCells ?? 0;
+			if (totalLeftCells == totalRightCells) return 0;
+
+			const lessCellsOnLeft = totalLeftCells < totalRightCells;
 			const angleIncrement = [1, -1][lessCellsOnLeft * 1];
 			return angleIncrement;
 
-			// const cellsAhead = this._withinBoxAhead(this.x, this.y);
-			// const totalCellsAhead = cellsAhead.length;
-			// if (totalCellsAhead == 0) return;
-			// const leftCells = cellsAhead?.filter(cell => cell[1] > this._axis(cell[0]));
-			// const totalLeftCells = leftCells.length;
-			// const totalRightCells = totalCellsAhead - totalLeftCells;
-			// if (totalLeftCells == totalRightCells) return;
-			// const lessCellsOnLeft = totalLeftCells < totalRightCells
-			// const angleIncrement = [1, -1][lessCellsOnLeft * 1];
-			// return angleIncrement;
 		}
 
 		this._withinBoxAhead = (x, y) => {
