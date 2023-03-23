@@ -13,7 +13,9 @@ export class Agent {
 		this.x = Math.round(this._worldWidth / 2);
 		this.y = Math.round(this._worldHeight / 2);
 		this.radius = 10;
+		// fat is serving as surface with implicit radius for the agents
 		this._fat = Math.round(Math.PI * Math.pow(this.radius, 2));
+		this._maxFat = 2 * Math.PI * this._maxRadius ^ 2
 		this.gender = 'male';
 		this.pregnant = false;
 		this.sensingDistance = this.radius;
@@ -50,10 +52,12 @@ export class Agent {
 			const cellsInBox = this._lifeWorkerService.getBoxCells(this.x, this.y, Math.round(this.radius / 2));
 			const cellsEaten = cellsInBox.filter(cell => this._cellIsCovered(cell));
 			this._fat += cellsEaten.length;
-			this.radius = Math.round(Math.sqrt(this._fat / Math.PI));
+			// Surface = pi * r^2
+			// r^2 = Surface / pi
+			// r = Math.sqrt(Surface / pi)
+			this.radius = Math.min(this.maxRadius, Math.round(Math.sqrt(this._fat / Math.PI)));
 			this._lifeWorkerService.eatCells(this.x, this.y, this.radius / 2);
 		};
-
 		this._cellIsCovered = cell => (Math.pow(cell[0] - this.x, 2) + Math.pow(cell[1] - this.y, 2)) < Math.pow(this.radius, 2);
 
 		this._axis = x => {
