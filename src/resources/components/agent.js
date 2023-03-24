@@ -17,7 +17,7 @@ export class Agent {
 		this._fat = Math.round(Math.PI * Math.pow(this.radius, 2));
 		this.gender = 'male';
 		this.pregnant = false;
-		this.sensingDistance = this.radius;
+		this.sensingDistance = this.radius * 2;
 		this.turnAmount = 5;
 		this._agentImages = {
 			'male': [$('.bug_0')[0], $('.bug-0')[0]],
@@ -27,7 +27,12 @@ export class Agent {
 		this._xWrap = x => (x + this._worldWidth) % this._worldWidth;
 		this._yWrap = y => (y + this._worldHeight) % this._worldHeight;
 
-		this._setAdult = _ => {
+		this._updateProperties = _ => {
+			// Surface = pi * r^2
+			// r^2 = Surface / pi
+			// r = Math.sqrt(Surface / pi)
+			this.radius = Math.min(this.maxRadius, Math.round(Math.sqrt(this._fat / Math.PI)));
+			this.sensingDistance = this.radius * 2;
 			const originalAdult = this.adult;
 			this.adult = (this.radius > this._adultRadius) * 1;
 			if (this.adult == this.originalAdult) return;
@@ -40,7 +45,7 @@ export class Agent {
 		};
 
 		this.step = _ => {
-			this._setAdult();
+			this._updateProperties();
 			this._eat();
 			if (this._fat > 0) {
 				this._fat -= this._stepEnergy();
@@ -57,10 +62,6 @@ export class Agent {
 			const cellsInBox = this._lifeWorkerService.getBoxCells(this.x, this.y, Math.round(this.radius / 2));
 			const cellsEaten = cellsInBox.filter(cell => this._cellIsCovered(cell));
 			this._fat += cellsEaten.length;
-			// Surface = pi * r^2
-			// r^2 = Surface / pi
-			// r = Math.sqrt(Surface / pi)
-			this.radius = Math.min(this.maxRadius, Math.round(Math.sqrt(this._fat / Math.PI)));
 			this._lifeWorkerService.eatCells(this.x, this.y, this.radius / 2);
 		};
 		this._cellIsCovered = cell => (Math.pow(cell[0] - this.x, 2) + Math.pow(cell[1] - this.y, 2)) < Math.pow(this.radius, 2);
@@ -71,9 +72,16 @@ export class Agent {
 			return y;
 		};
 
-		this._senseFood = _ => {
+		this._perpendicularAxis = x => {
+			const a = Math.tan(this.angle + (Math.PI / 2));
+			const y = a * (x - this.x) + this.y;
+			return y;
+		};
 
-			const cellsAhead = this._withinBoxAhead(this.x, this.y);
+		this._senseFood = _ => {
+			// todo: wrapAround
+			const cellsAround = this._lifeWorkerService.getBoxCells(this.x, this.y, this.sensingDistance);
+			const cellsAhead = cellsAround?.filter(cell => cell[1] > this._perpendicularAxis(cell[0]));
 			if (!cellsAhead?.length) return 0;
 
 			const leftCells = cellsAhead?.filter(cell => cell[1] > this._axis(cell[0]));
@@ -81,18 +89,10 @@ export class Agent {
 			const totalRightCells = cellsAhead?.length - totalLeftCells ?? 0;
 			if (totalLeftCells == totalRightCells) return 0;
 
-			const lessCellsOnLeft = totalLeftCells < totalRightCells;
-			const angleIncrement = [1, -1][lessCellsOnLeft * 1];
+			const moreCellRight = totalLeftCells < totalRightCells;
+			const angleIncrement = [-1, 1][moreCellRight * 1];
 			return angleIncrement;
 
-		}
-
-		this._withinBoxAhead = (x, y) => {
-			// todo: wrapAround
-			const xAhead = x + Math.sin(this.angle) * this.sensingDistance;
-			const yAhead = y + Math.cos(this.angle) * this.sensingDistance;
-			const CellsWithinSensingDistance = this._lifeWorkerService.getBoxCells(xAhead, yAhead, this.sensingDistance);
-			return CellsWithinSensingDistance;
 		}
 
 		// TODO: sneller mogelijk omdat cellen gesorteerd zijn op y, x
