@@ -37,7 +37,8 @@ export class SettingsCustomElement {
 			{ id: 20, rule: "/234", name: "Serviettes" },
 			{ id: 21, rule: "235678/3678", name: "Stains" },
 			{ id: 22, rule: "2345/45678", name: "Walled Cities" },
-			{ id: 23, rule: "1/12", name: "Sierpinski" }
+			{ id: 23, rule: "1/12", name: "Sierpinski" },
+			{ id: 24, rule: "23/356", name: "Fat Life" },
 			// { id: 1, rule: "34678/0123478/2", name: "Inverse Life" }, 
 		];
 		this.grid = false;

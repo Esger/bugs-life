@@ -7,7 +7,7 @@ export class Agent {
 		this._goldenRatio = 1.618;
 		this.minRadius = 5;
 		this.maxRadius = 20;
-		this._adultRadius = this._maxRadius / this._goldenRatio;
+		this._adultRadius = this.maxRadius / this._goldenRatio;
 
 		this.angle = 2 * Math.random(0) * Math.PI;
 		this.x = Math.round(this._worldWidth / 2);
@@ -23,11 +23,16 @@ export class Agent {
 			'male': [$('.bug_0')[0], $('.bug-0')[0]],
 			'female': [$('.bug_1')[0], $('.bug-1')[0]]
 		}
-		this.adult = _ => (this.radius > this._adultRadius) * 1;
-		this.image = _ => this._agentImages[this.gender][this.adult()];
 		this._stepEnergy = _ => Math.round(Math.sqrt(this.radius) / 2);
 		this._xWrap = x => (x + this._worldWidth) % this._worldWidth;
 		this._yWrap = y => (y + this._worldHeight) % this._worldHeight;
+
+		this._setAdult = _ => {
+			const originalAdult = this.adult;
+			this.adult = (this.radius > this._adultRadius) * 1;
+			if (this.adult == this.originalAdult) return;
+			this.image = this._agentImages[this.gender][this.adult];
+		};
 
 		this.setWorldSize = (width, height) => {
 			this._worldWidth = width;
@@ -35,6 +40,7 @@ export class Agent {
 		};
 
 		this.step = _ => {
+			this._setAdult();
 			this._eat();
 			if (this._fat > 0) {
 				this._fat -= this._stepEnergy();
