@@ -9,13 +9,12 @@ export class Agent {
 		this.maxRadius = 20;
 		this._adultRadius = this._maxRadius / this._goldenRatio;
 
-		this.angle = 0;
+		this.angle = 2 * Math.random(0) * Math.PI;
 		this.x = Math.round(this._worldWidth / 2);
 		this.y = Math.round(this._worldHeight / 2);
 		this.radius = 10;
 		// fat is serving as surface with implicit radius for the agents
 		this._fat = Math.round(Math.PI * Math.pow(this.radius, 2));
-		this._maxFat = 2 * Math.PI * this._maxRadius ^ 2
 		this.gender = 'male';
 		this.pregnant = false;
 		this.sensingDistance = this.radius;
@@ -44,7 +43,7 @@ export class Agent {
 				this.x = this._xWrap(this.x + dx);
 				this.y = this._yWrap(this.y + dy);
 			}
-			const angleNudge = this._senseFood();
+			const angleNudge = this._senseFood() || this._goldenRatio / 10;
 			this.angle += this.turnAmount * angleNudge * Math.PI / 360;
 		}
 
