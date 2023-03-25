@@ -5,9 +5,11 @@ export class Agent {
 		this._worldHeight = worldHeight;
 		this._lifeWorkerService = lifeWorkerService;
 		this._goldenRatio = 1.618;
+		this._TAU = 2 * Math.PI;
 		this.minRadius = 5;
 		this.maxRadius = 20;
 		this._adultRadius = this.maxRadius / this._goldenRatio;
+		this._depletion = 0;
 
 		this.angle = 2 * Math.random(0) * Math.PI;
 		this.x = Math.round(this._worldWidth / 2);
@@ -53,9 +55,12 @@ export class Agent {
 				const dx = Math.cos(this.angle);
 				this.x = this._xWrap(this.x + dx);
 				this.y = this._yWrap(this.y + dy);
+			} else {
+				this._depletion += 1;
+				(this._depletion == 100) && this._die();
 			}
-			const angleNudge = this._senseFood() || this._goldenRatio / 10;
-			this.angle += this.turnAmount * angleNudge * Math.PI / 360;
+			const foodAngleNudge = this._senseFood() || this._goldenRatio / 10;
+			this.angle += this.turnAmount * foodAngleNudge * Math.PI / 360;
 			this._setVertical();
 		}
 
@@ -116,7 +121,21 @@ export class Agent {
 			const moreCellRight = leftCellCount < rightCellsCount;
 			const angleIncrement = [-1, 1][moreCellRight * 1];
 			return angleIncrement;
+		}
 
+		// Scatter the bug's fat around into lifecells
+		this._die = _ => {
+			const cells = [];
+			const graveRadius = 50;
+			let cellCount = 100;
+			for (; cellCount > 0; cellCount -= 1) {
+				const r = Math.random() * graveRadius + this.maxRadius;
+				const angle = Math.random() * this._TAU;
+				const x = Math.round(this._xWrap(this.radius + this.x + Math.cos(angle) * r));
+				const y = Math.round(this._yWrap(this.radius + this.y + Math.sin(angle) * r));
+				cells.push([x, y]);
+			}
+			this._lifeWorkerService.addCells(cells);
 		}
 
 		// TODO: sneller mogelijk omdat cellen gesorteerd zijn op y, x

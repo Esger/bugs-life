@@ -123,6 +123,17 @@ export class LifeWorkerService {
 		this._lifeWorker.postMessage(workerData);
 	}
 
+	addCells(cells) {
+		if (cells.length) {
+			this._buffer.push(...cells);
+			const workerData = {
+				message: 'setCells',
+				cells: this._buffer
+			};
+			this._lifeWorker.postMessage(workerData);
+		}
+	}
+
 	getGeneration() {
 		const workerData = {
 			message: 'step'

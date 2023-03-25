@@ -45,7 +45,7 @@ var conway = {
 				}
 			}
 		}
-		return cells;
+		conway.liveCells = cells;
 	},
 
 	setCells: function (cells) {
@@ -145,12 +145,8 @@ onmessage = function (e) {
 				conway.setSize(data.w, data.h);
 				conway.sendScreen('setSize');
 				break;
-			case 'addCell':
-				conway.addCell(data.cell);
-				conway.sendScreen('addCell');
-				break;
 			case 'fillRandom':
-				conway.liveCells = conway.fillRandom();
+				conway.fillRandom();
 				conway.sendScreen('fillRandom');
 				break;
 			case 'setCells':
