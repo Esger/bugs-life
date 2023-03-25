@@ -56,6 +56,7 @@ export class Agent {
 			}
 			const angleNudge = this._senseFood() || this._goldenRatio / 10;
 			this.angle += this.turnAmount * angleNudge * Math.PI / 360;
+			this._setVertical();
 		}
 
 		this._eat = _ => {
@@ -66,30 +67,53 @@ export class Agent {
 		};
 		this._cellIsCovered = cell => (Math.pow(cell[0] - this.x, 2) + Math.pow(cell[1] - this.y, 2)) < Math.pow(this.radius, 2);
 
+		this._setVertical = _ => {
+			const angle = this.angle;
+			const tolerance = 1e-2; // choose a suitable tolerance
+			if (Math.abs(angle - 0.5 * Math.PI) < tolerance) {
+				this._vertical = -this._worldHeight;
+			}
+			if (Math.abs(angle - 1.5 * Math.PI) < tolerance) {
+				this._vertical = this._worldHeight;
+			}
+			this._vertical = false;
+		}
+
 		this._axis = x => {
-			const a = Math.tan(this.angle);
-			const y = a * (x - this.x) + this.y;
-			return y;
+			if (!this._vertical) {
+				const a = Math.tan(this.angle);
+				const y = a * (x - this.x) + this.y;
+				return y;
+			}
+			return this._vertical;
 		};
 
+		// this._axis = x => {
+		// 	const a = Math.tan(this.angle);
+		// 	const y = a * (x - this.x) + this.y;
+		// 	return y;
+		// };
+
 		this._perpendicularAxis = x => {
-			const a = Math.tan(this.angle + (Math.PI / 2));
-			const y = a * (x - this.x) + this.y;
-			return y;
+			if (!this._vertical) {
+				const a = Math.tan(this.angle - (Math.PI / 2));
+				const y = a * (x - this.x) + this.y;
+				return y;
+			}
+			return this._vertical;
 		};
 
 		this._senseFood = _ => {
-			// todo: wrapAround
 			const cellsAround = this._lifeWorkerService.getBoxCells(this.x, this.y, this.sensingDistance);
 			const cellsAhead = cellsAround?.filter(cell => cell[1] > this._perpendicularAxis(cell[0]));
 			if (!cellsAhead?.length) return 0;
 
 			const leftCells = cellsAhead?.filter(cell => cell[1] > this._axis(cell[0]));
-			const totalLeftCells = leftCells?.length ?? 0;
-			const totalRightCells = cellsAhead?.length - totalLeftCells ?? 0;
-			if (totalLeftCells == totalRightCells) return 0;
+			const leftCellCount = leftCells?.length ?? 0;
+			const rightCellsCount = cellsAhead?.length - leftCellCount ?? 0;
+			if (leftCellCount == rightCellsCount) return 0;
 
-			const moreCellRight = totalLeftCells < totalRightCells;
+			const moreCellRight = leftCellCount < rightCellsCount;
 			const angleIncrement = [-1, 1][moreCellRight * 1];
 			return angleIncrement;
 

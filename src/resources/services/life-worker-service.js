@@ -27,10 +27,17 @@ export class LifeWorkerService {
 		const maxX = x + distance;
 		const minY = y - distance;
 		const maxY = y + distance;
-		const withinBox = ((cellX > minX || cellX > minX + this._worldWidth) &&
-			(cellX < maxX || cellX < maxX - this._worldWidth) &&
-			(cellY > minY || cellY > minY + this._worldHeight) &&
-			(cellY < maxY || cellY < maxY - this._worldWidth));
+		const withinBox = (
+			(cellX > minX) &&
+			(cellX < maxX) &&
+			(cellY > minY) &&
+			(cellY < maxY)
+		);
+		// const onOppositeSide = (
+		// 	(cellX + this._worldWidth > minX) &&
+		// 	(cellX - this._worldWidth < maxX) &&
+		// 	(cellY + this._worldHeight > minY) &&
+		// 	(cellY - this._worldWidth < maxY));
 		return withinBox;
 	}
 
