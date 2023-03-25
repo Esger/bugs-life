@@ -134,6 +134,47 @@ export class LifeWorkerService {
 		}
 	}
 
+	_convertRle2Cells(rle, offsetX = 0, offsetY = 0) {
+		const cells = [];
+		const instructions = rle.split('');
+		let x = 0, y = 0, repetitions = 1;
+		instructions.forEach(instruction => {
+			switch (true) {
+				case !isNaN(instruction): // repeat instruction
+					repetitions = parseInt(instruction, 10);
+					break;
+				case instruction == 'b': // dead cell (Burried :)
+					x += repetitions;
+					repetitions = 1;
+					break;
+				case instruction == 'o': // live cell
+					for (let count = 0; count < repetitions; count++) {
+						cells.push([x + offsetX, y + offsetY]);
+						x++;
+					}
+					repetitions = 1;
+					break;
+				case instruction == '$': // end of line
+					y++; x = 0;
+					break;
+				default: // instruction == '!' end of pattern
+					break;
+			}
+		});
+		return cells;
+	}
+
+	addAcorn(xy) {
+		// #N Acorn
+		// #O Charles Corderman
+		// #C A methuselah with lifespan 5206.
+		// #C www.conwaylife.com / wiki / index.php ? title = Acorn
+		// x = 7, y = 3, rule = B3 / S23
+		const rle = 'bo5b$3bo3b$2o2b3o!';
+		const cells = this._convertRle2Cells(rle, xy[0], xy[1]);
+		this.addCells(cells);
+	}
+
 	getGeneration() {
 		const workerData = {
 			message: 'step'
