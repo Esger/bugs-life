@@ -9,7 +9,7 @@ export class Agent {
 		this.minRadius = 5;
 		this.maxRadius = 20;
 		this._adultRadius = this.maxRadius / this._goldenRatio;
-		this._depletion = 0;
+		this.depletion = 0;
 
 		this.angle = 2 * Math.random(0) * Math.PI;
 		this.x = Math.round(this._worldWidth / 2);
@@ -56,8 +56,8 @@ export class Agent {
 				this.x = this._xWrap(this.x + dx);
 				this.y = this._yWrap(this.y + dy);
 			} else {
-				this._depletion += 1;
-				(this._depletion == 100) && this._die();
+				this.depletion += 1;
+				(this.depletion == 100) && this._die();
 			}
 			const foodAngleNudge = this._senseFood() || this._goldenRatio / 10;
 			this.angle += this.turnAmount * foodAngleNudge * Math.PI / 360;
@@ -70,6 +70,7 @@ export class Agent {
 			this._fat += cellsEaten.length;
 			this._lifeWorkerService.eatCells(this.x, this.y, this.radius / 2);
 		};
+
 		this._cellIsCovered = cell => (Math.pow(cell[0] - this.x, 2) + Math.pow(cell[1] - this.y, 2)) < Math.pow(this.radius, 2);
 
 		this._setVertical = _ => {
@@ -123,26 +124,16 @@ export class Agent {
 			return angleIncrement;
 		}
 
-		// Scatter the bug's fat around into lifecells
 		this._die = _ => {
-			const cells = [];
-			const graveRadius = 50;
-			let cellCount = 100;
-			for (; cellCount > 0; cellCount -= 1) {
-				const r = Math.random() * graveRadius + this.maxRadius;
-				const angle = Math.random() * this._TAU;
-				const x = Math.round(this._xWrap(this.radius + this.x + Math.cos(angle) * r));
-				const y = Math.round(this._yWrap(this.radius + this.y + Math.sin(angle) * r));
-				cells.push([x, y]);
-			}
-			this._lifeWorkerService.addCells(cells);
+			setTimeout(_ => {
+				const xy = [Math.round(this.x), Math.round(this.y)];
+				this._lifeWorkerService.addAcorn(xy);
+			});
 		}
 
 		// TODO: sneller mogelijk omdat cellen gesorteerd zijn op y, x
 		// dubbel loopje snel tot minY, stoppen na maxY
 		// of binary search tree toepassen
-		// kijken in cirkel ervóór
-		// this._getSurrounding = (lif
 	}
 
 	createAgent(worldWidth, worldHeight, lifeWorkerService) {
