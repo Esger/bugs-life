@@ -43,6 +43,7 @@ export class SettingsCustomElement {
 		];
 		this.grid = false;
 		this.trails = true;
+		this.initialized = false;
 		this.cellSize = 2;
 		this.cellSizeExp = 1;
 		this.minCellSize = -1;
@@ -106,7 +107,8 @@ export class SettingsCustomElement {
 	}
 
 	attached() {
-		this.publishRules(true);
+		this.publishRules(!this.initialized);
+		this.initialized = true;
 		this.setCellSize();
 	}
 }
