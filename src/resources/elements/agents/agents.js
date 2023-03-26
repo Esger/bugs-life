@@ -26,6 +26,7 @@ export class AgentsCustomElement {
 				this._addAgent();
 			}
 			this._addListeners();
+			this._addSiblingsAwareness();
 		});
 	}
 
@@ -35,8 +36,14 @@ export class AgentsCustomElement {
 		this._agents.forEach(agent => agent.setWorldSize(this._worldWidth, this._worldHeight));
 	}
 
+	_addSiblingsAwareness() {
+		this._agents.forEach(agent => {
+			agent.siblings = this._agents;
+		});
+	}
+
 	_addAgent() {
-		const agent = this._agent.createAgent(this._worldWidth, this._worldHeight, this._lifeWorkerService);
+		const agent = this._agent.createAgent(this._worldWidth, this._worldHeight, this._lifeWorkerService, this._uuid);
 		this._agents.push(agent);
 		this._agentsDataService.setAgents(this._agents);
 	}
@@ -59,6 +66,7 @@ export class AgentsCustomElement {
 		});
 		this._agents = this._agents.filter(agent => agent.depletion < 100); // remove dead agents
 		this._agentsDataService.setAgents(this._agents);
+		this._addSiblingsAwareness();
 		this._eventAggregator.publish('agentsReady');
 	}
 
