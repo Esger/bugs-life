@@ -34,7 +34,7 @@ export class Agent {
 			// r^2 = Surface / pi
 			// r = Math.sqrt(Surface / pi)
 			this.radius = Math.min(this.maxRadius, Math.round(Math.sqrt(this._fat / Math.PI)));
-			this.sensingDistance = this.radius * 2;
+			this.sensingDistance = Math.max(20, this.radius * 2);
 			const originalAdult = this.adult;
 			this.adult = (this.radius > this._adultRadius) * 1;
 			if (this.adult == this.originalAdult) return;

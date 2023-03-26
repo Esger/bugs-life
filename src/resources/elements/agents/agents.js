@@ -16,12 +16,15 @@ export class AgentsCustomElement {
 		this._agentsDataService = agentsDataService;
 		this._agents = [];
 		this._agent = agent;
+		this._initialAgentsCount = 20;
 	}
 
 	attached() {
 		this._setWorldWidth();
 		setTimeout(_ => {
-			this._addAgent();
+			for (let i = 0; i < this._initialAgentsCount; i++) {
+				this._addAgent();
+			}
 			this._addListeners();
 		});
 	}
