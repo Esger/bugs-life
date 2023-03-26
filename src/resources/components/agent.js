@@ -1,6 +1,7 @@
 export class Agent {
 
-	constructor(worldWidth, worldHeight, lifeWorkerService) {
+	constructor(worldWidth, worldHeight, lifeWorkerService, id) {
+		this._id = id;
 		this._worldWidth = worldWidth;
 		this._worldHeight = worldHeight;
 		this._lifeWorkerService = lifeWorkerService;
@@ -136,8 +137,8 @@ export class Agent {
 		// of binary search tree toepassen
 	}
 
-	createAgent(worldWidth, worldHeight, lifeWorkerService) {
-		const newAgent = new Agent(worldWidth, worldHeight, lifeWorkerService);
+	createAgent(worldWidth, worldHeight, lifeWorkerService, id) {
+		const newAgent = new Agent(worldWidth, worldHeight, lifeWorkerService, id);
 		return newAgent;
 	}
 

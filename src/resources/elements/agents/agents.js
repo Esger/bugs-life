@@ -16,6 +16,7 @@ export class AgentsCustomElement {
 		this._agentsDataService = agentsDataService;
 		this._agents = [];
 		this._agent = agent;
+		this._nextId = 1000;
 		this._initialAgentsCount = 20;
 	}
 
@@ -26,24 +27,25 @@ export class AgentsCustomElement {
 				this._addAgent();
 			}
 			this._addListeners();
-			this._addSiblingsAwareness();
+			this._addAwareness();
 		});
 	}
 
 	_setWorldWidth() {
 		this._worldWidth = this.canvasWidth / this.cellSize;
 		this._worldHeight = this.canvasHeight / this.cellSize;
-		this._agents.forEach(agent => agent.setWorldSize(this._worldWidth, this._worldHeight));
 	}
 
-	_addSiblingsAwareness() {
+	_addAwareness() {
 		this._agents.forEach(agent => {
 			agent.siblings = this._agents;
+			agent.setWorldSize(this._worldWidth, this._worldHeight);
 		});
 	}
 
 	_addAgent() {
-		const agent = this._agent.createAgent(this._worldWidth, this._worldHeight, this._lifeWorkerService, this._uuid);
+		const agent = this._agent.createAgent(this._worldWidth, this._worldHeight, this._lifeWorkerService, this._nextId);
+		this._nextId++;
 		this._agents.push(agent);
 		this._agentsDataService.setAgents(this._agents);
 	}
@@ -56,7 +58,10 @@ export class AgentsCustomElement {
 			this.cellSize = cellSize;
 			this._setWorldWidth();
 		});
-		this._addAgentSubscription = this._eventAggregator.subscribe('addAgent', _ => this._addAgent());
+		this._addAgentSubscription = this._eventAggregator.subscribe('addAgent', _ => {
+			this._addAgent();
+			this._addAwareness();
+		});
 	}
 
 	_stepAgents() {
@@ -66,7 +71,7 @@ export class AgentsCustomElement {
 		});
 		this._agents = this._agents.filter(agent => agent.depletion < 100); // remove dead agents
 		this._agentsDataService.setAgents(this._agents);
-		this._addSiblingsAwareness();
+		this._addAwareness();
 		this._eventAggregator.publish('agentsReady');
 	}
 
