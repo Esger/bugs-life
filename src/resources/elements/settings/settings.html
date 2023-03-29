@@ -27,20 +27,22 @@
 				<life-rule repeat.for="rule of liferules"
 						   if.bind="$index < 9">
 					<input type="checkbox"
-						   checked.bind="rule"
-						   id.one-time="'rule_'+$index"
-						   change.delegate="setRules($index)">
-					<label for.one-time="'rule_'+$index">${$index % 10}</label>
+							checked.bind="rule"
+							id.one-time="'rule_'+$index"
+							change.delegate="setRules($index)">
+					<label for.one-time="'rule_'+$index"
+							class="lifeRule">${$index % 10}</label>
 				</life-rule>
 			</life-rules>
 			<life-rules>
 				<life-rule repeat.for="rule of liferules"
 						   if.bind="$index > 9">
 					<input type="checkbox"
-						   checked.bind="rule"
-						   id.one-time="'rule_'+$index"
-						   change.delegate="setRules($index)">
-					<label for.one-time="'rule_'+$index">${$index % 10}</label>
+							checked.bind="rule"
+							id.one-time="'rule_'+$index"
+							change.delegate="setRules($index)">
+					<label for.one-time="'rule_'+$index"
+							class="lifeRule">${$index % 10}</label>
 				</life-rule>
 			</life-rules>
 		</div>
