@@ -1,4 +1,13 @@
 <template>
-	<button type="button"
-		click.delegate="addAgent()">Add Bug</button>
+	<p>
+		<button type="button"
+			click.delegate="addAgent()">Add Bug</button>
+	</p>
+	<p>
+		<input id="showData"
+			type="checkbox"
+			checked.bind="showData"
+			change.delegate="toggleShowData()" />
+		<label for="showData">Show info</label>
+	</p>
 </template>

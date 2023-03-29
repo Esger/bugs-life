@@ -16,6 +16,7 @@ export class CanvasCustomElement {
 		this._agentsDataService = agentsDataService;
 		this._grid = false;
 		this._trails = true;
+		this._showData = false;
 		this._opacity = 1 - this._trails * 0.9;
 	}
 
@@ -91,30 +92,36 @@ export class CanvasCustomElement {
 
 	_drawAgents() {
 		this._agents?.forEach(agent => {
+			const ctx = this._ctxOffscreen;
 			const scale = Math.max(agent.radius, agent.minRadius) / 16;
-			this._ctxOffscreen.save();
-			this._ctxOffscreen.translate(agent.x * this.cellSize, agent.y * this.cellSize);
-			this._ctxOffscreen.rotate(agent.angle);
-			this._ctxOffscreen.scale(scale, scale);
-			this._ctxOffscreen.drawImage(agent.image, - 16, - 16);
-			this._ctxOffscreen.restore();
+			ctx.save();
+			ctx.translate(agent.x * this.cellSize, agent.y * this.cellSize);
+			ctx.rotate(agent.angle);
+			ctx.scale(scale, scale);
+			ctx.drawImage(agent.image, - 16, - 16);
+			if (this._showData) {
+				// sensingDistance
+				ctx.strokeStyle = "rgba(221,221,51,.7)";
+				ctx.lineWidth = '3';
+				ctx.beginPath();
+				ctx.arc(0, 0, agent.sensingDistance, -Math.PI / 2, Math.PI / 2);
+				// const progressRadius = Math.max(agent.radius - 2.5, 1);
+				// const bugRear = 3 * Math.PI / 2;
+				// const progress = (1 - agent.steps / agent.maxSteps) * Math.PI / 2;
+				// const startAngle = bugRear - progress;
+				// const endAngle = bugRear + progress;
+				// ctx.fillStyle = "crimson";
+				// ctx.fillRect(0, 0, 40, 60);
+				// ctx.strokeStyle = "rgba(0,255,0,.7)";
+				// ctx.arc(0, 0, progressRadius, startAngle, endAngle);
+				ctx.stroke();
+				// ctx.fillStyle = "rgb(0,0,0)";
+				// ctx.fillText(agent.id, -6, -2);
+			}
+			ctx.restore();
 		});
-		this._ctx.drawImage(this._offScreenCanvas, 0, 0, this._element.width, this._element.height);
 
-		// if (this.showData) {
-		// 	let progressRadius = Math.max(bug.radius - 2.5, 1);
-		// 	let bugRear = 3 * PI / 2;
-		// 	let progress = (1 - bug.steps / bug.maxSteps) * PI / 2;
-		// 	let startAngle = bugRear - progress;
-		// 	let endAngle = bugRear + progress;
-		// 	ctx.strokeStyle = "rgba(0,255,0,.7)";
-		// 	ctx.lineWidth = '3';
-		// 	ctx.beginPath();
-		// 	ctx.arc(0, 0, progressRadius, startAngle, endAngle);
-		// 	ctx.stroke();
-		// 	ctx.fillStyle = "rgb(0,0,0)";
-		// 	ctx.fillText(bug.id, - 6, - 2);
-		// }
+		this._ctx.drawImage(this._offScreenCanvas, 0, 0, this._element.width, this._element.height);
 	}
 
 	_addListeners() {
@@ -133,6 +140,7 @@ export class CanvasCustomElement {
 			this._addCell(...data);
 		});
 		this._eventAggregator.subscribe('toggleGrid', _ => this._grid = !this._grid);
+		this._eventAggregator.subscribe('toggleData', _ => this._showData = !this._showData);
 		this._eventAggregator.subscribe('toggleTrails', () => {
 			this._trails = !this._trails;
 			this._opacity = 1 - this._trails * 0.9;
