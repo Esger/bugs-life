@@ -9,8 +9,8 @@
 					class.bind="tab.active ? 'active' : ''">${tab.title}</tab-button>
 	</tab-buttons>
 	<tab-contents>
-		<settings if.bind="tabs[0].active"></settings>
-		<story if.bind="tabs[1].active"></story>
-		<agent-controls if.bind="tabs[2].active"></agent-controls>
+		<settings show.bind="tabs[0].active"></settings>
+		<story show.bind="tabs[1].active"></story>
+		<agent-controls show.bind="tabs[2].active"></agent-controls>
 	</tab-contents>
 </template>

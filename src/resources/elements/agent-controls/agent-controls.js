@@ -6,7 +6,11 @@ export class AgentControls {
 
 	constructor(eventAggregator) {
 		this._eventAggregator = eventAggregator;
-		this.showData = false;
+		this.showData = true;
+	}
+
+	attached() {
+		setTimeout(_ => this.toggleShowData());
 	}
 
 	addAgent() {
@@ -14,7 +18,7 @@ export class AgentControls {
 	}
 
 	toggleShowData() {
-		this._eventAggregator.publish('toggleData');
+		this._eventAggregator.publish('toggleData', this.showData);
 	}
 
 }

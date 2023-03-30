@@ -140,7 +140,7 @@ export class CanvasCustomElement {
 			this._addCell(...data);
 		});
 		this._eventAggregator.subscribe('toggleGrid', _ => this._grid = !this._grid);
-		this._eventAggregator.subscribe('toggleData', _ => this._showData = !this._showData);
+		this._eventAggregator.subscribe('toggleData', showData => this._showData = showData);
 		this._eventAggregator.subscribe('toggleTrails', () => {
 			this._trails = !this._trails;
 			this._opacity = 1 - this._trails * 0.9;
