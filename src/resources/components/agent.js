@@ -22,7 +22,7 @@ export class Agent {
 		this._fat = Math.round(Math.PI * Math.pow(this.radius, 2));
 		this.gender = 'male';
 		this.pregnant = false;
-		this.sensingDistance = this.radius * 2;
+		this.sensingDistance = this.radius * this._goldenRatio;
 		this.turnAmount = 5;
 		this._agentImages = {
 			'male': [$('.bug_0')[0], $('.bug-0')[0]],
@@ -42,8 +42,8 @@ export class Agent {
 			// Surface = pi * r^2
 			// r^2 = Surface / pi
 			// r = Math.sqrt(Surface / pi)
-			this.radius = Math.min(this.maxRadius, Math.round(Math.sqrt(this._fat / Math.PI)));
-			this.sensingDistance = Math.max(30, this.radius * 2);
+			this.radius = Math.max(this.minRadius, Math.min(this.maxRadius, Math.round(Math.sqrt(this._fat / Math.PI))));
+			this.sensingDistance = this.radius * this._goldenRatio;
 			const originalAdult = this.adult;
 			this.adult = (this.radius > this._adultRadius) * 1;
 			if (this.adult == this.originalAdult) return;
@@ -70,10 +70,10 @@ export class Agent {
 		}
 
 		this._eat = _ => {
-			const cellsInBox = this._lifeWorkerService.getBoxCells(this.x, this.y, Math.round(this.radius / 2));
+			const cellsInBox = this._lifeWorkerService.getBoxCells(this.x, this.y, this.radius);
 			const cellsEaten = cellsInBox.filter(cell => this._cellIsCovered(cell));
 			this._fat += cellsEaten.length;
-			this._lifeWorkerService.eatCells(this.x, this.y, this.radius / 2);
+			this._lifeWorkerService.eatCells(this.x, this.y, this.radius);
 		};
 
 		this._cellIsCovered = cell => (Math.pow(cell[0] - this.x, 2) + Math.pow(cell[1] - this.y, 2)) < Math.pow(this.radius, 2);

@@ -42,6 +42,7 @@ export class LifeWorkerService {
 	}
 
 	getBoxCells(x, y, distance) {
+		const realDistance = Math.round(distance / this._cellSize);
 		const boxCells = this._buffer.filter(cell => this._withinBox(cell[0], cell[1], x, y, distance));
 		return boxCells;
 	}
@@ -51,12 +52,12 @@ export class LifeWorkerService {
 			message: 'killCells',
 			x: Math.round(x),
 			y: Math.round(y),
-			radius: radius
+			radius: radius / this._cellSize
 		}
 		this._lifeWorker.postMessage(workerData);
 	}
 
-	init(w, h, liferules) {
+	init(width, height, liferules, cellSize) {
 		this._buffer = [];
 		this._lifeWorker.onmessage = (e) => {
 			this._buffer = e.data.cells || [];
@@ -64,27 +65,29 @@ export class LifeWorkerService {
 		};
 		const workerData = {
 			message: 'initialize',
-			w: w,
-			h: h,
+			w: width,
+			h: height,
 			liferules: liferules
 		};
-		this._worldWidth = w;
-		this._worldHeight = h;
+		this._worldWidth = width;
+		this._worldHeight = height;
+		this._cellSize = cellSize;
 		this._lifeWorker.postMessage(workerData);
 	}
 
-	resize(w, h) {
+	resize(width, height, cellSize) {
 		const inArea = cell => {
-			return (cell[0] <= w) && (cell[1] <= h);
+			return (cell[0] <= width) && (cell[1] <= height);
 		};
 		this._buffer = this._buffer.filter(inArea);
 		const workerData = {
 			message: 'setSize',
-			w: w,
-			h: h
+			w: width,
+			h: height
 		};
-		this._worldWidth = w;
-		this._worldHeight = h;
+		this._worldWidth = width;
+		this._worldHeight = height;
+		this._cellSize = cellSize;
 		this._lifeWorker.postMessage(workerData);
 	}
 

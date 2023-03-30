@@ -93,7 +93,8 @@ export class CanvasCustomElement {
 	_drawAgents() {
 		this._agents?.forEach(agent => {
 			const ctx = this._ctxOffscreen;
-			const scale = Math.max(agent.radius, agent.minRadius) / 16;
+			// 32 -> 10 - 40
+			const scale = agent.radius / 16;
 			ctx.save();
 			ctx.translate(agent.x * this.cellSize, agent.y * this.cellSize);
 			ctx.rotate(agent.angle);
@@ -102,7 +103,7 @@ export class CanvasCustomElement {
 			if (this._showData) {
 				// sensingDistance
 				ctx.strokeStyle = "rgba(221,221,51,.7)";
-				ctx.lineWidth = '3';
+				ctx.lineWidth = '1';
 				ctx.beginPath();
 				ctx.arc(0, 0, agent.sensingDistance, -Math.PI / 2, Math.PI / 2);
 				// const progressRadius = Math.max(agent.radius - 2.5, 1);

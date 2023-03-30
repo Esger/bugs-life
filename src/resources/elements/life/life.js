@@ -66,7 +66,7 @@ export class LifeCustomElement {
 		this._resetSteps();
 		this.canvas = document.getElementById('life');
 		this._setSpaceSize();
-		this._lifeWorkerService.init(this.spaceWidth, this.spaceHeight, this._liferules);
+		this._lifeWorkerService.init(this.spaceWidth, this.spaceHeight, this._liferules, this.cellSize);
 		this._lifeWorkerService.fillRandom();
 	}
 
@@ -158,7 +158,7 @@ export class LifeCustomElement {
 		this._eventAggregator.subscribe('cellSize', response => {
 			this.cellSize = response;
 			this._setSpaceSize();
-			this._lifeWorkerService.resize(this.spaceWidth, this.spaceHeight);
+			this._lifeWorkerService.resize(this.spaceWidth, this.spaceHeight, this.cellSize);
 		});
 		this._eventAggregator.subscribe('lifeRules', response => {
 			this._liferules = response.liferules;

@@ -17,7 +17,7 @@ export class AgentsCustomElement {
 		this._agents = [];
 		this._agent = agent;
 		this._nextId = 1000;
-		this._initialAgentsCount = 20;
+		this._initialAgentsCount = 10;
 	}
 
 	attached() {
