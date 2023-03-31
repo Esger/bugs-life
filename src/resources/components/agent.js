@@ -18,7 +18,7 @@ export class Agent {
 		this.x = Math.round(this._worldWidth / 2);
 		this.y = Math.round(this._worldHeight / 2);
 		this.radius = 10;
-		// fat is serving as surface with implicit radius for the agents
+		// surface with implicit radius is serving as fat for the agent
 		this._fat = Math.round(Math.PI * Math.pow(this.radius, 2));
 		this.gender = 'male';
 		this.pregnant = false;
@@ -63,9 +63,11 @@ export class Agent {
 				this.depletion += 1;
 				(this.depletion == 100) && this._die();
 			}
-			const foodAngleNudge = this._senseFood() || this._goldenRatio / 10;
-			this.angle += (this.turnAmount * foodAngleNudge * Math.PI / 180);
-			this.angle = (this.angle + this._TAU) % this._TAU;
+			const neighboursAngleNudge = this._sense180('agents') || 0;
+			this.angle += (this.turnAmount * neighboursAngleNudge * Math.PI / 180);
+			// const foodAngleNudge = this._sense180('life') || this._goldenRatio * Math.random();
+			// this.angle += (this.turnAmount * foodAngleNudge * Math.PI / 180);
+			this.angle = (this.angle + this._TAU) % this._TAU; // normalize
 			this._setQuadrant();
 		}
 
@@ -119,24 +121,24 @@ export class Agent {
 			return y;
 		}
 
-		this._leftOfAxis = cell => {
+		this._leftOfAxis = item => {
 			switch (this._direction) {
 				case 'right':
-					return cell[1] < this.y;
+					return item[1] < this.y;
 				case 'rightDown':
-					return cell[1] < this._axis(cell[0]);
+					return item[1] < this._axis(item[0]);
 				case 'down':
-					return cell[0] > this.x;
+					return item[0] > this.x;
 				case 'leftDown':
-					return cell[1] > this._axis(cell[0]);
+					return item[1] > this._axis(item[0]);
 				case 'left':
-					return cell[1] > this.y;
+					return item[1] > this.y;
 				case 'leftUp':
-					return cell[1] > this._axis(cell[0]);
+					return item[1] > this._axis(item[0]);
 				case 'up':
-					return cell[0] < this.x;
+					return item[0] < this.x;
 				case 'rightUp':
-					return cell[1] < this._axis(cell[0]);
+					return item[1] < this._axis(item[0]);
 			}
 		};
 
@@ -146,39 +148,54 @@ export class Agent {
 			return y;
 		}
 
-		this._aheadPerpendicularAxis = cell => {
+		this._aheadPerpendicularAxis = item => {
 			switch (this._direction) {
 				case 'right':
-					return cell[0] > this.x;
+					return item[0] > this.x;
 				case 'rightDown':
-					return cell[1] > this._perpendicularAxis(cell[0]);
+					return item[1] > this._perpendicularAxis(item[0]);
 				case 'down':
-					return cell[1] > this.y;
+					return item[1] > this.y;
 				case 'leftDown':
-					return cell[1] > this._perpendicularAxis(cell[0]);
+					return item[1] > this._perpendicularAxis(item[0]);
 				case 'left':
-					return cell[0] < this.x;
+					return item[0] < this.x;
 				case 'leftUp':
-					return cell[1] < this._perpendicularAxis(cell[0]);
+					return item[1] < this._perpendicularAxis(item[0]);
 				case 'up':
-					return cell[1] < this.y;
+					return item[1] < this.y;
 				case 'rightUp':
-					return cell[1] < this._perpendicularAxis(cell[0]);
+					return item[1] < this._perpendicularAxis(item[0]);
 			}
 		};
 
-		this._senseFood = _ => {
-			const cellsAround = this._lifeWorkerService.getBoxCells(this.x, this.y, this.sensingDistance);
-			const cellsAhead = cellsAround?.filter(cell => this._aheadPerpendicularAxis(cell));
-			if (!cellsAhead?.length) return 0;
+		// returns +1, 0 or -1 as a nudge to the current angle
+		this._sense180 = type => {
+			let items, itemsAhead, towards;
+			if (type == 'life') {
+				items = this._lifeWorkerService.getBoxCells(this.x, this.y, this.sensingDistance);
+				itemsAhead = items?.filter(item => this._aheadPerpendicularAxis(item));
+			} else if (type == 'agents') {
+				items = this.siblings;
+				itemsAhead = items?.filter(item => {
+					if (item.id === this.id) return false;
+					const ahead = this._aheadPerpendicularAxis([Math.round(item.x), Math.round(item.y)]);
+					if (ahead) {
+						const distance = Math.sqrt(Math.pow(this.x - item.x, 2) + Math.pow(this.y - item.y, 2));
+						return distance < this.sensingDistance;
+					}
+					return false;
+				});
+			}
+			if (!itemsAhead?.length) return 0;
 
-			const leftCells = cellsAhead?.filter(cell => this._leftOfAxis(cell));
-			const leftCellCount = leftCells?.length ?? 0;
-			const rightCellsCount = cellsAhead?.length - leftCellCount ?? 0;
-			if (leftCellCount == rightCellsCount) return 0;
+			const leftItems = itemsAhead?.filter(item => this._leftOfAxis(item));
+			const leftItemsCount = leftItems?.length ?? 0;
+			const rightItemsCount = itemsAhead?.length - leftItemsCount ?? 0;
+			if (leftItemsCount == rightItemsCount) return 0;
 
-			const moreCellRight = leftCellCount < rightCellsCount;
-			const angleIncrement = [-1, 1][moreCellRight * 1];
+			const moreItemsRight = leftItemsCount < rightItemsCount;
+			const angleIncrement = [-1, 1][moreItemsRight * 1];
 			return angleIncrement;
 		}
 
