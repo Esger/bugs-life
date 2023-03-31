@@ -116,8 +116,9 @@ export class CanvasCustomElement {
 				// ctx.strokeStyle = "rgba(0,255,0,.7)";
 				// ctx.arc(0, 0, progressRadius, startAngle, endAngle);
 				ctx.stroke();
-				// ctx.fillStyle = "rgb(0,0,0)";
-				// ctx.fillText(agent.id, -6, -2);
+				ctx.fillStyle = "rgb(255,255,255)";
+				ctx.rotate(-Math.PI / 2);
+				ctx.fillText(agent.id, -12, -1);
 			}
 			ctx.restore();
 		});
