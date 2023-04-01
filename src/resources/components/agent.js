@@ -22,7 +22,8 @@ export class Agent {
 		this._fat = Math.round(Math.PI * Math.pow(this.radius, 2));
 		this.gender = 'male';
 		this.pregnant = false;
-		this.sensingDistance = this.radius * this._goldenRatio;
+		this.foodSensingDistance = this.radius * this._goldenRatio;
+		this.siblingsSensingDistance = this.radius * this._goldenRatio * this._goldenRatio;
 		this.turnAmount = 5;
 		this._agentImages = {
 			'male': [$('.bug_0')[0], $('.bug-0')[0]],
@@ -43,10 +44,11 @@ export class Agent {
 			// r^2 = Surface / pi
 			// r = Math.sqrt(Surface / pi)
 			this.radius = Math.max(this.minRadius, Math.min(this.maxRadius, Math.round(Math.sqrt(this._fat / Math.PI))));
-			this.sensingDistance = this.radius * this._goldenRatio;
+			this.foodSensingDistance = this.radius * this._goldenRatio;
+			this.siblingsSensingDistance = this.radius * this._goldenRatio * this._goldenRatio;
 			const originalAdult = this.adult;
 			this.adult = (this.radius > this._adultRadius) * 1;
-			if (this.adult == this.originalAdult) return;
+			if (this.adult == originalAdult) return;
 			this.image = this._agentImages[this.gender][this.adult];
 		};
 
@@ -63,9 +65,9 @@ export class Agent {
 				this.depletion += 1;
 				(this.depletion == 100) && this._die();
 			}
-			const neighboursAngleNudge = this._sense180('agents') || 0;
+			const neighboursAngleNudge = -this._sense180('agents');
 			this.angle += (this.turnAmount * neighboursAngleNudge * Math.PI / 180);
-			// const foodAngleNudge = this._sense180('life') || this._goldenRatio * Math.random();
+			// const foodAngleNudge = this._sense180('life');
 			// this.angle += (this.turnAmount * foodAngleNudge * Math.PI / 180);
 			this.angle = (this.angle + this._TAU) % this._TAU; // normalize
 			this._setQuadrant();
@@ -110,7 +112,7 @@ export class Agent {
 					this._direction = 'rightUp';
 					break;
 				default:
-					this._direction = undefined;
+					this._direction = 'right';
 					break;
 			}
 		}
@@ -171,32 +173,41 @@ export class Agent {
 
 		// returns +1, 0 or -1 as a nudge to the current angle
 		this._sense180 = type => {
-			let items, itemsAhead, towards;
+			let items = [];
+			let itemsAhead = [];
+			let leftItems = [];
 			if (type == 'life') {
-				items = this._lifeWorkerService.getBoxCells(this.x, this.y, this.sensingDistance);
+				items = this._lifeWorkerService.getBoxCells(this.x, this.y, this.foodSensingDistance);
 				itemsAhead = items?.filter(item => this._aheadPerpendicularAxis(item));
+				if (!itemsAhead.length) return 0;
+				leftItems = itemsAhead?.filter(item => {
+					const leftOfAxis = this._leftOfAxis(item);
+					return leftOfAxis;
+				});
 			} else if (type == 'agents') {
 				items = this.siblings;
 				itemsAhead = items?.filter(item => {
 					if (item.id === this.id) return false;
-					const ahead = this._aheadPerpendicularAxis([Math.round(item.x), Math.round(item.y)]);
+					const ahead = this._aheadPerpendicularAxis([item.x, item.y]);
 					if (ahead) {
 						const distance = Math.sqrt(Math.pow(this.x - item.x, 2) + Math.pow(this.y - item.y, 2));
-						return distance < this.sensingDistance;
+						return distance < this.siblingsSensingDistance;
 					}
 					return false;
 				});
+				if (!itemsAhead.length) return 0;
+				leftItems = itemsAhead?.filter(item => {
+					const leftOfAxis = this._leftOfAxis([item.x, item.y]);
+					return leftOfAxis;
+				});
 			}
-			if (!itemsAhead?.length) return 0;
 
-			const leftItems = itemsAhead?.filter(item => this._leftOfAxis(item));
 			const leftItemsCount = leftItems?.length ?? 0;
 			const rightItemsCount = itemsAhead?.length - leftItemsCount ?? 0;
 			if (leftItemsCount == rightItemsCount) return 0;
 
 			const moreItemsRight = leftItemsCount < rightItemsCount;
-			const angleIncrement = [-1, 1][moreItemsRight * 1];
-			return angleIncrement;
+			return moreItemsRight ? 1 : -1;
 		}
 
 		this._die = _ => {

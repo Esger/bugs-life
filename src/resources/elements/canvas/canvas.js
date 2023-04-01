@@ -101,11 +101,11 @@ export class CanvasCustomElement {
 			ctx.scale(scale, scale);
 			ctx.drawImage(agent.image, - 16, - 16);
 			if (this._showData) {
-				// sensingDistance
+				// foodSensingDistance
 				ctx.strokeStyle = "rgba(221,221,51,.7)";
 				ctx.lineWidth = '1';
 				ctx.beginPath();
-				ctx.arc(0, 0, agent.sensingDistance, -Math.PI / 2, Math.PI / 2);
+				ctx.arc(0, 0, agent.foodSensingDistance, -Math.PI / 2, Math.PI / 2);
 				// const progressRadius = Math.max(agent.radius - 2.5, 1);
 				// const bugRear = 3 * Math.PI / 2;
 				// const progress = (1 - agent.steps / agent.maxSteps) * Math.PI / 2;
