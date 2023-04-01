@@ -40,6 +40,7 @@ export class AgentsCustomElement {
 		this._agents.forEach(agent => {
 			agent.siblings = this._agents;
 			agent.setWorldSize(this._worldWidth, this._worldHeight);
+			agent.setDeathTimeout(this._speedInterval);
 		});
 	}
 
@@ -61,6 +62,9 @@ export class AgentsCustomElement {
 		this._addAgentSubscription = this._eventAggregator.subscribe('addAgent', _ => {
 			this._addAgent();
 			this._addAwareness();
+		});
+		this._eventAggregator.subscribe('timeoutInterval', response => {
+			this._speedInterval = response;
 		});
 	}
 

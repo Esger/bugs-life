@@ -38,6 +38,10 @@ export class Agent {
 			this._worldHeight = Math.round(height);
 		};
 
+		this.setDeathTimeout(deathTimeout) = _ => {
+			this._deathTimeout = deathTimeout;
+		};
+
 		this._updateProperties = _ => {
 			this.steps++;
 			// Surface = pi * r^2
@@ -214,7 +218,7 @@ export class Agent {
 			setTimeout(_ => {
 				const xy = [Math.round(this.x), Math.round(this.y)];
 				this._lifeWorkerService.addAcorn(xy);
-			});
+			}, this._deathTimeout);
 		}
 
 		// TODO: sneller mogelijk omdat cellen gesorteerd zijn op y, x
