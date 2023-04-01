@@ -37,8 +37,9 @@ export class Agent {
 			this._worldWidth = Math.round(width);
 			this._worldHeight = Math.round(height);
 		};
-
 		this.setDeathTimeout = deathTimeout => this._deathTimeout = Math.max(2 * deathTimeout, 100);
+		this.setKeepDistance = keepDistance => this._keepDistance = keepDistance;
+		this.setSenseFood = senseFood => this._senseFood = senseFood;
 
 		this._updateProperties = _ => {
 			this.steps++;
@@ -67,10 +68,14 @@ export class Agent {
 				this.depletion += 1;
 				(this.depletion == 100) && this._die();
 			}
-			const neighboursAngleNudge = -this._sense180('agents');
-			this.angle += (this.turnAmount * neighboursAngleNudge * Math.PI / 180);
-			// const foodAngleNudge = this._sense180('life');
-			// this.angle += (this.turnAmount * foodAngleNudge * Math.PI / 180);
+			if (this._keepDistance) {
+				const neighboursAngleNudge = -this._sense180('agents');
+				this.angle += (this.turnAmount * neighboursAngleNudge * Math.PI / 180);
+				if (neighboursAngleNudge == 0 && this._senseFood) {
+					const foodAngleNudge = this._sense180('life');
+					this.angle += (this.turnAmount * foodAngleNudge * Math.PI / 180);
+				}
+			}
 			this.angle = (this.angle + this._TAU) % this._TAU; // normalize
 			this._setQuadrant();
 		}
