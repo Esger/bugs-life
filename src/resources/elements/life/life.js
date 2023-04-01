@@ -44,7 +44,7 @@ export class LifeCustomElement {
 		const speed = Math.floor(1000 * steps / this.deltaTime);
 		this._before = this._now;
 		this._cellsAlive = this._lifeWorkerService.getCellCount();
-		this._eventAggregator.publish('stats', {
+		this._eventAggregator.publish('lifeStats', {
 			cellCount: this._cellsAlive,
 			generations: this._lifeSteps,
 			speed: speed

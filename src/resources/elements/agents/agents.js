@@ -76,7 +76,7 @@ export class AgentsCustomElement {
 		this._agents = this._agents.filter(agent => agent.depletion < 100); // remove dead agents
 		this._agentsDataService.setAgents(this._agents);
 		this._addAwareness();
-		this._eventAggregator.publish('agentsReady');
+		this._eventAggregator.publish('agentsReady', this._agents.length);
 	}
 
 	detached() {
