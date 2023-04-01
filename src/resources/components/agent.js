@@ -38,9 +38,7 @@ export class Agent {
 			this._worldHeight = Math.round(height);
 		};
 
-		this.setDeathTimeout(deathTimeout) = _ => {
-			this._deathTimeout = deathTimeout;
-		};
+		this.setDeathTimeout = deathTimeout => this._deathTimeout = Math.max(2 * deathTimeout, 100);
 
 		this._updateProperties = _ => {
 			this.steps++;
