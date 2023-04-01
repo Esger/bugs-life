@@ -1,9 +1,22 @@
 <template>
-	<p>
+	<require from="./agent-controls.css"></require>
+	<p class="controls">
+
 		<button type="button"
 			click.delegate="addAgent()">Add Bug</button>
-	</p>
-	<p>
+
+		<input id="senseFood"
+			type="checkbox"
+			checked.bind="senseFood"
+			change.delegate="toggleSenseFood()" />
+		<label for="senseFood">Sense food</label>
+
+		<input id="keepDistance"
+			type="checkbox"
+			checked.bind="keepDistance"
+			change.delegate="toggleKeepDistance()" />
+		<label for="keepDistance">Keep distance</label>
+
 		<input id="showData"
 			type="checkbox"
 			checked.bind="showData"
