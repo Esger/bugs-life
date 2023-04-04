@@ -18,7 +18,9 @@ export class ControlsCustomElement {
 	}
 
 	attached() {
-		this.setTimeoutInterval();
+		setTimeout(() => {
+			this.setTimeoutInterval();
+		}, 100);
 	}
 
 	clear() {

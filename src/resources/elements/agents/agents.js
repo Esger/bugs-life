@@ -55,7 +55,7 @@ export class AgentsCustomElement {
 
 	_addListeners() {
 		this._cellsReadySubscription = this._eventAggregator.subscribe('cellsReady', _ => {
-			this._stepAgents();
+			this._agents.length && this._stepAgents();
 		});
 		this._cellSizeSubscription = this._eventAggregator.subscribe('cellSize', cellSize => {
 			this.cellSize = cellSize;
@@ -84,10 +84,7 @@ export class AgentsCustomElement {
 	}
 
 	_stepAgents() {
-		const food = this._lifeWorkerService.getCells();
-		this._agents.forEach(agent => {
-			agent.step(food);
-		});
+		this._agents.forEach(agent => agent.step());
 		this._agents = this._agents.filter(agent => agent.depletion < 100); // remove dead agents
 		this._agentsDataService.setAgents(this._agents);
 		this._setAwareness();
