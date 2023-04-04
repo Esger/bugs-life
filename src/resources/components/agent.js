@@ -81,10 +81,10 @@ export class Agent {
 		}
 
 		this._eat = _ => {
+			this._lifeWorkerService.eatCells(this.x, this.y, this.radius);
 			const cellsInBox = this._lifeWorkerService.getBoxCells(this.x, this.y, this.radius);
 			const cellsEaten = cellsInBox.filter(cell => this._cellIsCovered(cell));
 			this._fat += cellsEaten.length;
-			this._lifeWorkerService.eatCells(this.x, this.y, this.radius);
 		};
 
 		this._cellIsCovered = cell => (Math.pow(cell[0] - this.x, 2) + Math.pow(cell[1] - this.y, 2)) < Math.pow(this.radius, 2);
