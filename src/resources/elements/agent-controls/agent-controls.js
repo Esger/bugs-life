@@ -27,6 +27,10 @@ export class AgentControls {
 		this._eventAggregator.publish('addAgent');
 	}
 
+	killAgents() {
+		this._eventAggregator.publish('killAgents');
+	}
+
 	toggleSenseFood() {
 		this._settingsService.saveSettings('senseFood', this.senseFood);
 		this._eventAggregator.publish('senseFood', this.senseFood);

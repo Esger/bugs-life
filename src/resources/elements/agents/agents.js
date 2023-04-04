@@ -73,6 +73,11 @@ export class AgentsCustomElement {
 			this._addAgent();
 			this._setAwareness();
 		});
+		this._addAgentSubscription = this._eventAggregator.subscribe('killAgents', _ => {
+			this._agents = [];
+			this._agentsDataService.setAgents(this._agents);
+			this._eventAggregator.publish('agentsReady', this._agents.length);
+		});
 		this._eventAggregator.subscribe('timeoutInterval', response => {
 			this._speedInterval = response;
 		});
