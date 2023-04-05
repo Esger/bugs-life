@@ -17,8 +17,6 @@ export class LifeCustomElement {
 		this._liferules = [];
 		this._speedInterval = 0;
 		this._running = false;
-		this._cellCounts = [];
-		this._stableCountDown = 20;
 		this._before = performance.now();
 		this._now = performance.now();
 		this._before = this._now;
@@ -53,13 +51,9 @@ export class LifeCustomElement {
 
 	_animateStep() {
 		// It seems like calling this multiple times, speeds up everything even more.
-		this._getCells(true);
-		this._running && setTimeout(_ => { this._animateStep(); }, this._speedInterval);
-	}
-
-	_getCells(generate) {
-		generate && this._lifeWorkerService.getGeneration();
+		this._lifeWorkerService.getGeneration();
 		this._lifeSteps += 1;
+		this._running && setTimeout(_ => this._animateStep(), this._speedInterval);
 	}
 
 	_initLife() {
@@ -78,8 +72,6 @@ export class LifeCustomElement {
 	_resetSteps() {
 		this._lifeSteps = 0; // Number of iterations / steps done
 		this._prevSteps = 0;
-		this._stableCountDown = 20;
-		this._cellCounts = []
 	}
 
 	_clear() {
@@ -91,17 +83,6 @@ export class LifeCustomElement {
 	_stop() {
 		this._running = false;
 		clearInterval(this.statusUpdateHandle);
-		// if (!this.statusUpdateHandle) return;
-
-		// setTimeout(() => {
-		// 	this.statusUpdateHandle = null;
-		// }, 333);
-	}
-
-	_start() {
-		this._running = true;
-		this._animateStep(false);
-		this.statusUpdateHandle = setInterval(() => { this._showStats(); }, 500);
 	}
 
 	addCell(event) {
@@ -125,32 +106,26 @@ export class LifeCustomElement {
 	_addListeners() {
 		this._eventAggregator.subscribe('clear', () => {
 			this._clear();
-			setTimeout(_ => {
-				this._showStats();
-			}, 200);
+			setTimeout(_ => this._showStats(), 200);
 		});
 		this._eventAggregator.subscribe('stop', () => {
 			this._stop();
 		});
 		this._eventAggregator.subscribe('start', () => {
-			this._start();
-			setTimeout(_ => {
-				this._showStats();
-			}, 200);
+			this._running = true;
+			this._animateStep();
+			this.statusUpdateHandle = setInterval(_ => this._showStats(), 500);
+			setTimeout(_ => this._showStats(), 200);
 		});
 		this._eventAggregator.subscribe('step', () => {
 			this._lifeWorkerService.getGeneration();
 			this._lifeSteps++;
-			setTimeout(_ => {
-				this._showStats();
-			}, 200);
+			setTimeout(_ => this._showStats(), 200);
 		});
 		this._eventAggregator.subscribe('fillRandom', () => {
 			this._lifeWorkerService.fillRandom();
 			this._resetSteps();
-			setTimeout(_ => {
-				this._showStats();
-			}, 200);
+			setTimeout(_ => this._showStats(), 200);
 		});
 		this._eventAggregator.subscribe('timeoutInterval', response => {
 			this._speedInterval = response;
