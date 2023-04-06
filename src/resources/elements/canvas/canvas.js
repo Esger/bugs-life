@@ -99,6 +99,7 @@ export class CanvasCustomElement {
 			ctx.translate(agent.x * this.cellSize, agent.y * this.cellSize);
 			ctx.rotate(agent.angle);
 			ctx.scale(scale, scale);
+			// ctx.globalAlpha = 0.1;
 			ctx.drawImage(agent.image, - 16, - 16);
 			if (this._showData) {
 				// foodSensingDistance
