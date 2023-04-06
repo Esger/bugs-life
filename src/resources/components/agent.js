@@ -68,13 +68,14 @@ export class Agent {
 				this.depletion += 1;
 				(this.depletion == 100) && this._die();
 			}
+			let neighboursAngleNudge = 0;
 			if (this._keepDistance) {
-				const neighboursAngleNudge = -this._sense180('agents');
+				neighboursAngleNudge = -this._sense180('agents');
 				this.angle += (this.turnAmount * neighboursAngleNudge * Math.PI / 180);
-				if (neighboursAngleNudge == 0 && this._canSenseFood) {
-					const foodAngleNudge = this._sense180('life');
-					this.angle += (this.turnAmount * foodAngleNudge * Math.PI / 180);
-				}
+			}
+			if (neighboursAngleNudge == 0 && this._canSenseFood) {
+				const foodAngleNudge = this._sense180('life');
+				this.angle += (this.turnAmount * foodAngleNudge * Math.PI / 180);
 			}
 			this.angle = (this.angle + this._TAU) % this._TAU; // normalize
 			this._setQuadrant();
