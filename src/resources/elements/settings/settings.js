@@ -1,16 +1,14 @@
-import {
-	inject
-} from 'aurelia-framework';
-import {
-	EventAggregator
-} from 'aurelia-event-aggregator';
+import { inject } from 'aurelia-framework';
+import { EventAggregator } from 'aurelia-event-aggregator';
+import { SettingsService } from 'services/settings-service';
 
-@inject(EventAggregator)
+@inject(EventAggregator, SettingsService)
 
 export class SettingsCustomElement {
 
-	constructor(eventAggregator) {
+	constructor(eventAggregator, settingsService) {
 		this._eventAggregator = eventAggregator;
+		this._settingsService = settingsService;
 		this.liferules = [];
 		this.selectedPreset = 6;
 		this.presets = [
@@ -41,8 +39,9 @@ export class SettingsCustomElement {
 			{ id: 24, rule: "23/356", name: "Fat Life" },
 			// { id: 1, rule: "34678/0123478/2", name: "Inverse Life" }, 
 		];
-		this.grid = false;
-		this.trails = true;
+		this.trails = this._settingsService.getSettings('trails');
+		if (this.trails == undefined) this.trails = true;
+		this.grid = this._settingsService.getSettings('grid') || false;
 		this.initialized = false;
 		this.cellSize = 2;
 		this.cellSizeExp = 1;
@@ -51,11 +50,23 @@ export class SettingsCustomElement {
 		this.setPreset();
 	}
 
-	toggleTrails() {
+	attached() {
+		this.publishRules(!this.initialized);
+		this.initialized = true;
+		this.setCellSize();
+		setTimeout(_ => {
+			this.setTrails();
+			this.setGrid();
+		}, 100);
+	}
+
+	setTrails() {
+		this._settingsService.saveSettings('trails', this.trails);
 		this._eventAggregator.publish('toggleTrails', this.trails);
 	}
 
-	toggleGrid() {
+	setGrid() {
+		this._settingsService.saveSettings('grid', this.grid);
 		this._eventAggregator.publish('toggleGrid', this.grid);
 	}
 
@@ -104,11 +115,5 @@ export class SettingsCustomElement {
 		this.liferules[i] = !this.liferules[i];
 		this.compareToPresets();
 		this.publishRules(false);
-	}
-
-	attached() {
-		this.publishRules(!this.initialized);
-		this.initialized = true;
-		this.setCellSize();
 	}
 }
