@@ -103,20 +103,24 @@ export class CanvasCustomElement {
 			ctx.drawImage(agent.image, - 16, - 16);
 			if (this._showData) {
 				// foodSensingDistance
-				ctx.strokeStyle = "rgba(221,221,51,.7)";
+				ctx.strokeStyle = "rgba(221,221,51,.8)";
 				ctx.lineWidth = '1';
 				ctx.beginPath();
 				ctx.arc(0, 0, agent.foodSensingDistance, -Math.PI / 2, Math.PI / 2);
+				ctx.stroke();
+				ctx.strokeStyle = "rgba(66,149,206,.1)";
+				ctx.beginPath();
+				ctx.arc(0, 0, agent.siblingsSensingDistance, -Math.PI / 2, Math.PI / 2);
+				ctx.stroke();
 				// const progressRadius = Math.max(agent.radius - 2.5, 1);
-				// const bugRear = 3 * Math.PI / 2;
+				// const bugRear = Math.PI;
 				// const progress = (1 - agent.steps / agent.maxSteps) * Math.PI / 2;
 				// const startAngle = bugRear - progress;
 				// const endAngle = bugRear + progress;
-				// ctx.fillStyle = "crimson";
-				// ctx.fillRect(0, 0, 40, 60);
+				// ctx.beginPath();
 				// ctx.strokeStyle = "rgba(0,255,0,.7)";
 				// ctx.arc(0, 0, progressRadius, startAngle, endAngle);
-				ctx.stroke();
+				// ctx.stroke();
 				ctx.fillStyle = "rgb(255,255,255)";
 				ctx.rotate(-Math.PI / 2);
 				ctx.fillText(agent.id, -12, -1);
