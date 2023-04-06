@@ -43,7 +43,7 @@ export class LifeWorkerService {
 
 	getBoxCells(x, y, distance) {
 		const realDistance = Math.round(distance / this._cellSize);
-		const boxCells = this._buffer.filter(cell => this._withinBox(cell[0], cell[1], x, y, distance));
+		const boxCells = this._buffer.filter(cell => this._withinBox(cell[0], cell[1], x, y, realDistance));
 		return boxCells;
 	}
 

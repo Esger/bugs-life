@@ -97,7 +97,7 @@ var conway = {
 	},
 
 	// Evaluate neighbourscounts for new livecells
-	evalNeighbours: function () {
+	evaluateNeighbours: function () {
 		const count = conway.numberCells;
 		const rowLength = conway.spaceWidth;
 		conway.liveCells = [];
@@ -125,7 +125,7 @@ var conway = {
 	step: function () {
 		conway.zeroNeighbours();
 		conway.updateNeighbours();
-		conway.evalNeighbours();
+		conway.evaluateNeighbours();
 		conway.eatenAreas = [];
 		conway.sendScreen('generation');
 		conway.lifeSteps += 1;
