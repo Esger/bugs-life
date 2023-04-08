@@ -39,7 +39,7 @@ export class AgentsCustomElement {
 	_setAwareness() {
 		this._agents.forEach(agent => {
 			agent.siblings = this._agents;
-			agent.setWorldSize(this._worldWidth, this._worldHeight);
+			agent.setWorldSize(this._worldWidth, this._worldHeight, this.cellSize);
 			agent.setDeathTimeout(this._speedInterval);
 			agent.setKeepDistance(this._keepDistance);
 			agent.setSenseFood(this._senseFood);
@@ -47,7 +47,7 @@ export class AgentsCustomElement {
 	}
 
 	_addAgent() {
-		const agent = this._agent.createAgent(this._worldWidth, this._worldHeight, this._lifeWorkerService, this._nextId);
+		const agent = this._agent.createAgent(this._worldWidth, this._worldHeight, this.cellSize, this._lifeWorkerService, this._nextId);
 		this._nextId++;
 		this._agents.push(agent);
 		this._agentsDataService.setAgents(this._agents);
@@ -60,6 +60,7 @@ export class AgentsCustomElement {
 		this._cellSizeSubscription = this._eventAggregator.subscribe('cellSize', cellSize => {
 			this.cellSize = cellSize;
 			this._setWorldWidth();
+			this._setAwareness();
 		});
 		this._cellSizeSubscription = this._eventAggregator.subscribe('keepDistance', keepDistance => {
 			this._keepDistance = keepDistance;

@@ -1,9 +1,10 @@
 export class Agent {
 
-	constructor(worldWidth, worldHeight, lifeWorkerService, id) {
+	constructor(worldWidth, worldHeight, cellSize, lifeWorkerService, id) {
 		this.id = id;
 		this._worldWidth = worldWidth;
 		this._worldHeight = worldHeight;
+		this._celsSize = cellSize;
 		this._lifeWorkerService = lifeWorkerService;
 		this._goldenRatio = 1.618;
 		this._TAU = 2 * Math.PI;
@@ -34,9 +35,10 @@ export class Agent {
 		this._xWrap = x => (x + this._worldWidth) % this._worldWidth;
 		this._yWrap = y => (y + this._worldHeight) % this._worldHeight;
 
-		this.setWorldSize = (width, height) => {
+		this.setWorldSize = (width, height, cellSize) => {
 			this._worldWidth = Math.round(width);
 			this._worldHeight = Math.round(height);
+			this._celsSize = cellSize;
 		};
 		this.setDeathTimeout = deathTimeout => this._deathTimeout = Math.max(2 * deathTimeout, 100);
 		this.setKeepDistance = keepDistance => this._keepDistance = keepDistance;
@@ -87,7 +89,7 @@ export class Agent {
 			this._lifeWorkerService.eatCells(this.x, this.y, this.radius);
 			const cellsInBox = this._lifeWorkerService.getBoxCells(this.x, this.y, this.radius);
 			const cellsEaten = cellsInBox.filter(cell => this._cellIsCovered(cell));
-			this._fat += cellsEaten.length;
+			this._fat += cellsEaten.length * this._celsSize;
 		};
 
 		this._isPriority = function (steps) {
@@ -242,8 +244,8 @@ export class Agent {
 		// dubbel loopje snel tot minY, stoppen na maxY
 		// of binary search tree toepassen
 	}
-	createAgent(worldWidth, worldHeight, lifeWorkerService, id) {
-		const newAgent = new Agent(worldWidth, worldHeight, lifeWorkerService, id);
+	createAgent(worldWidth, worldHeight, cellSize, lifeWorkerService, id) {
+		const newAgent = new Agent(worldWidth, worldHeight, cellSize, lifeWorkerService, id);
 		return newAgent;
 	}
 }
