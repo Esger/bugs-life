@@ -12,6 +12,16 @@ export class LifeWorkerService {
 		this._fillSlotIndex = 0;
 		this._getSlotIndex = 0;
 		this._maxIndex = 9;
+		this._walkers = {
+			right: [[1, -2], [2, -1], [-2, 0], [2, 0], [-1, 1], [0, 1], [1, 1], [2, 1]],
+			rightDown: [[1, -1], [-1, 0], [1, 0], [0, 1], [1, 1]],
+			down: [[0, -2], [-1, -1], [-1, 0], [-1, 1], [2, 1], [-1, 2], [0, 2], [1, 2]],
+			leftDown: [[0, -1], [-1, 0], [-1, 1], [0, 1], [1, 1]],
+			left: [[-1, -2], [-2, -1], [-2, 0], [2, 0], [-2, 1], [-1, 1], [0, 1], [1, 1]],
+			leftUp: [[-1, -1], [0, -1], [-1, 0], [1, 0], [-1, 1]],
+			up: [[-1, -2], [0, -2], [1, -2], [-1, -1], [2, -1], [-1, 0], [-1, 1], [0, 2]],
+			rightUp: [[-1, -1], [0, -1], [1, -1], [1, 0], [0, 1]],
+		};
 	}
 
 	getCells() {
@@ -128,10 +138,9 @@ export class LifeWorkerService {
 
 	addCells(cells) {
 		if (cells.length) {
-			this._buffer.push(...cells);
 			const workerData = {
-				message: 'setCells',
-				cells: this._buffer
+				message: 'addCells',
+				cells: cells
 			};
 			this._lifeWorker.postMessage(workerData);
 		}
@@ -176,6 +185,13 @@ export class LifeWorkerService {
 		const rle = 'bo5b$3bo3b$2o2b3o!';
 		const cells = this._convertRle2Cells(rle, xy[0], xy[1]);
 		this.addCells(cells);
+	}
+
+	addGlider(xy, direction) {
+		const cells = this._walkers[direction].map(cell => {
+			return [Math.round(cell[0] + xy[0]), Math.round(cell[1] + xy[1])];
+		});
+		this.addCells(cells)
 	}
 
 	getGeneration() {

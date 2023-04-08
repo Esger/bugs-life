@@ -3,6 +3,7 @@ var conway = {
 	cellsAlive: 0, // Number of cells alive
 	fillRatio: 0.2, // Percentage of available cells that will be set alive initially (20)
 	liferules: [],
+	addedCells: [],
 	eatenAreas: [],
 	numberCells: 0, // Number of available cells
 	spaceHeight: 0,
@@ -75,6 +76,8 @@ var conway = {
 
 	// Tell neighbours around livecells they have a neighbour
 	updateNeighbours: function () {
+		conway.liveCells.push(...conway.addedCells);
+		conway.addedCells = [];
 		const count = conway.liveCells.length;
 		const maxNeighbour = 2;
 		const rowLength = conway.spaceWidth;
@@ -152,6 +155,9 @@ onmessage = function (e) {
 			case 'setCells':
 				conway.setCells(data.cells);
 				conway.sendScreen('setCells');
+				break;
+			case 'addCells':
+				conway.addedCells.push(...data.cells);
 				break;
 			case 'killCells':
 				conway.storeEatenArea(data);

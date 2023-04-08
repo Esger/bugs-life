@@ -8,6 +8,7 @@ export class Agent {
 		this._goldenRatio = 1.618;
 		this._TAU = 2 * Math.PI;
 		this.steps = 0;
+		this._poopSteps = Math.floor(20 + Math.random() * 20);
 		this.maxSteps = 10000;
 		this.minRadius = 5;
 		this.maxRadius = 20;
@@ -58,6 +59,7 @@ export class Agent {
 		this.step = _ => {
 			this._updateProperties();
 			this._eat();
+			this._defecate();
 			if (this._fat > 0) {
 				this._fat -= this._stepEnergy();
 				const dy = Math.sin(this.angle);
@@ -88,6 +90,17 @@ export class Agent {
 			this._fat += cellsEaten.length;
 		};
 
+		this._isPriority = function (steps) {
+			return this.steps % steps == 0;
+		};
+
+		this._defecate = _ => {
+			if (this._isPriority(this._poopSteps)) {
+				const x = Math.round(Math.cos(this.angle + Math.PI) * (this.radius + 2) + this.x);
+				const y = Math.round(Math.sin(this.angle + Math.PI) * (this.radius + 2) + this.y);
+				this._lifeWorkerService.addGlider([x, y], this._direction);
+			};
+		}
 		this._cellIsCovered = cell => (Math.pow(cell[0] - this.x, 2) + Math.pow(cell[1] - this.y, 2)) < Math.pow(this.radius, 2);
 
 		// const quadrants = ['right', 'rightDown', 'down', 'leftDown', 'left', 'leftUp', 'up', 'upRight'];
@@ -229,10 +242,8 @@ export class Agent {
 		// dubbel loopje snel tot minY, stoppen na maxY
 		// of binary search tree toepassen
 	}
-
 	createAgent(worldWidth, worldHeight, lifeWorkerService, id) {
 		const newAgent = new Agent(worldWidth, worldHeight, lifeWorkerService, id);
 		return newAgent;
 	}
-
 }
