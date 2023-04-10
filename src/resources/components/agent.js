@@ -19,6 +19,7 @@ export class Agent {
 		this.angle = 2 * Math.random(0) * Math.PI;
 		this.x = Math.round(this._worldWidth / 2);
 		this.y = Math.round(this._worldHeight / 2);
+		this.meanPosition = { x: this.x, y: this.y };
 		this.radius = 10;
 		// surface with implicit radius is serving as fat for the agent
 		this._fat = Math.round(Math.PI * Math.pow(this.radius, 2));
@@ -43,6 +44,8 @@ export class Agent {
 		this.setDeathTimeout = deathTimeout => this._deathTimeout = Math.max(2 * deathTimeout, 100);
 		this.setKeepDistance = keepDistance => this._keepDistance = keepDistance;
 		this.setSenseFood = canSenseFood => this._canSenseFood = canSenseFood;
+		this.setMeanPosition = meanPosition => this._meanPosition = meanPosition;
+		this.setFlocking = flocking => this._flocking = flocking;
 
 		this._updateProperties = _ => {
 			this.steps++;
@@ -77,9 +80,16 @@ export class Agent {
 				neighboursAngleNudge = -this._sense180('agents');
 				this.angle += (this.turnAmount * neighboursAngleNudge * Math.PI / 180);
 			}
+			let foodAngleNudge = 0;
 			if (neighboursAngleNudge == 0 && this._canSenseFood) {
-				const foodAngleNudge = this._sense180('life');
+				foodAngleNudge = this._sense180('life');
 				this.angle += (this.turnAmount * foodAngleNudge * Math.PI / 180);
+			}
+			if (this._flocking && neighboursAngleNudge == 0 && foodAngleNudge == 0) {
+				const dxToPith = this.x - this.meanPosition.x;
+				const dyToPith = this.y - this.meanPosition.y;
+				const pithAngleNudge = this._leftOfAxis([dxToPith, dyToPith]) ? 1 : -1;
+				this.angle += (this.turnAmount * pithAngleNudge * Math.PI / 180);
 			}
 			this.angle = (this.angle + this._TAU) % this._TAU; // normalize
 			this._setQuadrant();

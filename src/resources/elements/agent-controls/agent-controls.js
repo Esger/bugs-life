@@ -13,6 +13,8 @@ export class AgentControls {
 		if (this.keepDistance == undefined) this.keepDistance = true;
 		this.senseFood = this._settingsService.getSettings('senseFood');
 		if (this.senseFood == undefined) this.senseFood = true;
+		this.flocking = this._settingsService.getSettings('flocking');
+		if (this.flocking == undefined) this.flocking = true;
 	}
 
 	attached() {
@@ -20,6 +22,7 @@ export class AgentControls {
 			this.toggleShowData();
 			this.toggleKeepDistance();
 			this.toggleSenseFood();
+			this.toggleFlocking();
 		}, 100);
 	}
 
@@ -39,6 +42,10 @@ export class AgentControls {
 	toggleKeepDistance() {
 		this._settingsService.saveSettings('keepDistance', this.keepDistance);
 		this._eventAggregator.publish('keepDistance', this.keepDistance);
+	}
+	toggleFlocking() {
+		this._settingsService.saveSettings('flocking', this.flocking);
+		this._eventAggregator.publish('flocking', this.flocking);
 	}
 
 	toggleShowData() {

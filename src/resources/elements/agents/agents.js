@@ -36,13 +36,29 @@ export class AgentsCustomElement {
 		this._worldHeight = this.canvasHeight / this.cellSize;
 	}
 
+	_getMeanPosition() {
+		// todo: farther away weighs less than closer
+		let sumX = 0;
+		let sumY = 0;
+		for (let i = 0; i < this._agents.length; i++) {
+			sumX += this._agents[i].x;
+			sumY += this._agents[i].y;
+		}
+		const meanX = sumX / this._agents.length;
+		const meanY = sumY / this._agents.length;
+		return [meanX, meanY];
+	}
+
 	_setAwareness() {
+		const meanPosition = this._getMeanPosition();
 		this._agents.forEach(agent => {
 			agent.siblings = this._agents;
 			agent.setWorldSize(this._worldWidth, this._worldHeight, this.cellSize);
 			agent.setDeathTimeout(this._speedInterval);
 			agent.setKeepDistance(this._keepDistance);
 			agent.setSenseFood(this._senseFood);
+			agent.setFlocking(this._flocking);
+			agent.setMeanPosition(meanPosition);
 		});
 	}
 
@@ -68,6 +84,10 @@ export class AgentsCustomElement {
 		});
 		this._cellSizeSubscription = this._eventAggregator.subscribe('senseFood', senseFood => {
 			this._senseFood = senseFood;
+			this._setAwareness();
+		});
+		this._cellSizeSubscription = this._eventAggregator.subscribe('flocking', flocking => {
+			this._flocking = flocking;
 			this._setAwareness();
 		});
 		this._addAgentSubscription = this._eventAggregator.subscribe('addAgent', _ => {
