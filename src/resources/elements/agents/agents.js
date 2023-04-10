@@ -44,9 +44,8 @@ export class AgentsCustomElement {
 			sumX += this._agents[i].x;
 			sumY += this._agents[i].y;
 		}
-		const meanX = sumX / this._agents.length;
-		const meanY = sumY / this._agents.length;
-		return [meanX, meanY];
+		const mean = [sumX / this._agents.length, sumY / this._agents.length];
+		return mean;
 	}
 
 	_setAwareness() {
