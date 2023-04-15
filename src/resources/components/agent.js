@@ -96,7 +96,7 @@ export class Agent {
 			}
 			this.angle = (this.angle + this._TAU) % this._TAU; // normalize
 			this._setQuadrant();
-		}
+		};
 
 		this._eat = _ => {
 			this._lifeWorkerService.eatCells(this.x, this.y, this.radius);
@@ -115,7 +115,7 @@ export class Agent {
 				const y = Math.round(Math.sin(this.angle + Math.PI) * (this.radius + 2) + this.y);
 				this._lifeWorkerService.addGlider([x, y], this._direction);
 			};
-		}
+		};
 		this._cellIsCovered = cell => (Math.pow(cell[0] - this.x, 2) + Math.pow(cell[1] - this.y, 2)) < Math.pow(this.radius, 2);
 
 		// const quadrants = ['right', 'rightDown', 'down', 'leftDown', 'left', 'leftUp', 'up', 'upRight'];
@@ -151,13 +151,13 @@ export class Agent {
 					this._direction = 'right';
 					break;
 			}
-		}
+		};
 
 		this._axis = x => {
 			const a = Math.tan(this.angle);
 			const y = a * (x - this.x) + this.y;
 			return y;
-		}
+		};
 
 		this._leftOfAxis = item => {
 			switch (this._direction) {
@@ -184,7 +184,7 @@ export class Agent {
 			const a = Math.tan(this.angle - (Math.PI / 2));
 			const y = a * (x - this.x) + this.y;
 			return y;
-		}
+		};
 
 		this._aheadPerpendicularAxis = item => {
 			switch (this._direction) {
@@ -251,7 +251,7 @@ export class Agent {
 				const xy = [Math.round(this.x), Math.round(this.y)];
 				this._lifeWorkerService.addAcorn(xy);
 			}, this._deathTimeout);
-		}
+		};
 
 		// TODO: sneller mogelijk omdat cellen gesorteerd zijn op y, x
 		// dubbel loopje snel tot minY, stoppen na maxY

@@ -89,8 +89,10 @@ export class AgentsCustomElement {
 			this._flocking = flocking;
 			this._setAwareness();
 		});
-		this._addAgentSubscription = this._eventAggregator.subscribe('addAgent', _ => {
-			this._addAgent();
+		this._addAgentSubscription = this._eventAggregator.subscribe('addAgent', number => {
+			for (let i = 0; i < number; i++) {
+				this._addAgent();
+			}
 			this._setAwareness();
 		});
 		this._addAgentSubscription = this._eventAggregator.subscribe('killAgents', _ => {

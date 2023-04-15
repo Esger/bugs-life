@@ -26,8 +26,8 @@ export class AgentControls {
 		}, 100);
 	}
 
-	addAgent() {
-		this._eventAggregator.publish('addAgent');
+	addAgent(number) {
+		this._eventAggregator.publish('addAgent', number);
 	}
 
 	killAgents() {
