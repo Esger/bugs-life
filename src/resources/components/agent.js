@@ -9,7 +9,7 @@ export class Agent {
 		this._goldenRatio = 1.618;
 		this._TAU = 2 * Math.PI;
 		this.steps = 0;
-		this._poopSteps = Math.floor(20 + Math.random() * 20);
+		this._poopSteps = Math.floor(30 + Math.random() * 30);
 		this.maxSteps = 10000;
 		this.minRadius = 5;
 		this.maxRadius = 20;
@@ -115,7 +115,7 @@ export class Agent {
 
 		// const quadrants = ['right', 'rightDown', 'down', 'leftDown', 'left', 'leftUp', 'up', 'upRight'];
 		this._setQuadrant = _ => {
-			const tolerance = 1e-2; // choose a suitable tolerance
+			const tolerance = Math.PI / 8; // choose a suitable tolerance
 			const angle = this.angle;
 			switch (true) {
 				case angle < tolerance:
