@@ -9,12 +9,13 @@ export class Agent {
 		this._goldenRatio = 1.618;
 		this._TAU = 2 * Math.PI;
 		this.steps = 0;
-		this._poopSteps = Math.floor(30 + Math.random() * 30);
+		this._poopSteps = Math.floor(25 + Math.random() * 25);
 		this.maxSteps = 10000;
 		this.minRadius = 5;
 		this.maxRadius = 20;
 		this._adultRadius = this.maxRadius / this._goldenRatio;
 		this.depletion = 0;
+		this._flockingDistance = 150;
 
 		this.angle = 2 * Math.random(0) * Math.PI;
 		this.x = Math.round(this._worldWidth / 2);
@@ -245,11 +246,17 @@ export class Agent {
 			// todo: farther away weighs less than closer
 			let sumX = 0;
 			let sumY = 0;
+			let neighbours = 0;
 			for (let i = 0; i < this._siblings.length; i++) {
-				sumX += this._siblings[i].x;
-				sumY += this._siblings[i].y;
+				const sibling = this._siblings[i];
+				const distance = Math.sqrt(Math.pow(this.x - sibling.x, 2) + Math.pow(this.y - sibling.y, 2));
+				if (distance < this._flockingDistance) {
+					sumX += sibling.x;
+					sumY += sibling.y;
+					neighbours++;
+				}
 			}
-			const mean = [sumX / this._siblings.length, sumY / this._siblings.length];
+			const mean = [sumX / neighbours, sumY / neighbours];
 			return mean;
 		};
 
