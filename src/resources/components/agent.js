@@ -19,7 +19,6 @@ export class Agent {
 		this.angle = 2 * Math.random(0) * Math.PI;
 		this.x = Math.round(this._worldWidth / 2);
 		this.y = Math.round(this._worldHeight / 2);
-		this._meanPosition = { x: this.x, y: this.y };
 		this.radius = 10;
 		// surface with implicit radius is serving as fat for the agent
 		this._fat = Math.round(Math.PI * Math.pow(this.radius, 2));
@@ -44,10 +43,7 @@ export class Agent {
 		this.setDeathTimeout = deathTimeout => this._deathTimeout = Math.max(2 * deathTimeout, 100);
 		this.setKeepDistance = keepDistance => this._keepDistance = keepDistance;
 		this.setSenseFood = canSenseFood => this._canSenseFood = canSenseFood;
-		this.setMeanPosition = meanPosition => {
-			this._meanPosition.x = meanPosition[0];
-			this._meanPosition.y = meanPosition[1];
-		};
+		this.setSiblings = siblings => this._siblings = siblings;
 		this.setFlocking = flocking => this._flocking = flocking;
 
 		this._updateProperties = _ => {
@@ -89,9 +85,8 @@ export class Agent {
 				this.angle += (this.turnAmount * foodAngleNudge * Math.PI / 180);
 			}
 			if (this._flocking && neighboursAngleNudge == 0 && foodAngleNudge == 0) {
-				const dxToPith = this.x - this._meanPosition.x;
-				const dyToPith = this.y - this._meanPosition.y;
-				const pithAngleNudge = this._leftOfAxis([dxToPith, dyToPith]) ? 1 : -1;
+				const meanPosition = this._getMeanPosition();
+				const pithAngleNudge = this._leftOfAxis(meanPosition) ? -1 : 1;
 				this.angle += (this.turnAmount * pithAngleNudge * Math.PI / 180);
 			}
 			this.angle = (this.angle + this._TAU) % this._TAU; // normalize
@@ -221,7 +216,7 @@ export class Agent {
 					return leftOfAxis;
 				});
 			} else if (type == 'agents') {
-				items = this.siblings;
+				items = this._siblings;
 				itemsAhead = items?.filter(item => {
 					if (item.id === this.id) return false;
 					const ahead = this._aheadPerpendicularAxis([item.x, item.y]);
@@ -244,7 +239,19 @@ export class Agent {
 
 			const moreItemsRight = leftItemsCount < rightItemsCount;
 			return moreItemsRight ? 1 : -1;
-		}
+		};
+
+		this._getMeanPosition = _ => {
+			// todo: farther away weighs less than closer
+			let sumX = 0;
+			let sumY = 0;
+			for (let i = 0; i < this._siblings.length; i++) {
+				sumX += this._siblings[i].x;
+				sumY += this._siblings[i].y;
+			}
+			const mean = [sumX / this._siblings.length, sumY / this._siblings.length];
+			return mean;
+		};
 
 		this._die = _ => {
 			setTimeout(_ => {
@@ -257,6 +264,7 @@ export class Agent {
 		// dubbel loopje snel tot minY, stoppen na maxY
 		// of binary search tree toepassen
 	}
+
 	createAgent(worldWidth, worldHeight, cellSize, lifeWorkerService, id) {
 		const newAgent = new Agent(worldWidth, worldHeight, cellSize, lifeWorkerService, id);
 		return newAgent;
