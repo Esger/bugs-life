@@ -147,6 +147,14 @@ export class LifeWorkerService {
 	}
 
 	_convertRle2Cells(rle, offsetX = 0, offsetY = 0) {
+		const splitString = str => {
+			const regex = /(\d+|[a-z])/gi; // regular expression to match numbers or character strings of length 1
+			return str.match(regex); // return array of matching substrings
+		}
+		const cells = [];
+		const instructions = [];
+		const lines = rle.split('$');
+		lines.forEach(line => instructions.push(...splitString(line)));
 		const cells = [];
 		const instructions = rle.split('');
 		let x = 0, y = 0, repetitions = 1;
