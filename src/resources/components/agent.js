@@ -89,7 +89,7 @@ export class Agent {
 				foodAngleNudge = this._sense180('life');
 				this.angle += (this.turnAmount * foodAngleNudge * Math.PI / 180);
 			}
-			if (this._flocking && neighboursAngleNudge == 0 && foodAngleNudge == 0) {
+			if (this.adult && this._flocking && neighboursAngleNudge == 0 && foodAngleNudge == 0) {
 				const meanPosition = this._getMeanPosition();
 				const pithAngleNudge = this._leftOfAxis(meanPosition) ? -1 : 1;
 				this.angle += (this.turnAmount * pithAngleNudge * Math.PI / 180);
