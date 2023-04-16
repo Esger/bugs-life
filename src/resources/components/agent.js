@@ -23,7 +23,7 @@ export class Agent {
 		this.radius = 10;
 		// surface with implicit radius is serving as fat for the agent
 		this.fat = Math.round(Math.PI * Math.pow(this.radius, 2));
-		this.gender = 'male';
+		this.gender = ['male', 'female'][(Math.random() > .5) * 1];
 		this.pregnant = false;
 		this.foodSensingDistance = this.radius * this._goldenRatio;
 		this.siblingsSensingDistance = this.radius * this._goldenRatio * this._goldenRatio;
@@ -31,6 +31,10 @@ export class Agent {
 		this._agentImages = {
 			'male': [$('.bug_0')[0], $('.bug-0')[0]],
 			'female': [$('.bug_1')[0], $('.bug-1')[0]]
+		}
+		this.color = {
+			male: 'rgba(66,149,206,.1)',
+			female: 'rgb(196,47,50,.1)'
 		}
 		this._stepEnergy = _ => Math.round(Math.sqrt(this.radius) / 2);
 		this._xWrap = x => (x + this._worldWidth) % this._worldWidth;
