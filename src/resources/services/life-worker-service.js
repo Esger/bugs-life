@@ -155,8 +155,6 @@ export class LifeWorkerService {
 		const instructions = [];
 		const lines = rle.split('$');
 		lines.forEach(line => instructions.push(...splitString(line)));
-		const cells = [];
-		const instructions = rle.split('');
 		let x = 0, y = 0, repetitions = 1;
 		instructions.forEach(instruction => {
 			switch (true) {
@@ -184,6 +182,10 @@ export class LifeWorkerService {
 		return cells;
 	}
 
+	die(xy) {
+		this.addLine(xy);
+	}
+
 	addAcorn(xy) {
 		// #N Acorn
 		// #O Charles Corderman
@@ -192,6 +194,21 @@ export class LifeWorkerService {
 		// x = 7, y = 3, rule = B3 / S23
 		const rle = 'bo5b$3bo3b$2o2b3o!';
 		const cells = this._convertRle2Cells(rle, xy[0], xy[1]);
+		this.addCells(cells);
+	}
+
+	addCaterpillar(xy) {
+		// #N Caterpillar Methusaleh
+		// x = 2, y = 5, rule = B3 / S23
+		const rle = '2b2o$2b2o2$5bo$3bobo$4b2o!';
+		const cells = this._convertRle2Cells(rle, xy[0], xy[1]);
+		this.addCells(cells);
+	}
+
+	addLine(xy) {
+		// #N Line horizontally
+		const rle = '100o!';
+		const cells = this._convertRle2Cells(rle, xy[0] - 50, xy[1]);
 		this.addCells(cells);
 	}
 

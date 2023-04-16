@@ -12,7 +12,7 @@ export class Agent {
 		this._poopSteps = Math.floor(25 + Math.random() * 25);
 		this.maxSteps = 10000;
 		this.minRadius = 5;
-		this.maxRadius = 20;
+		this.maxRadius = 16;
 		this._adultRadius = this.maxRadius / this._goldenRatio;
 		this.depletion = 0;
 		this._flockingDistance = 150;
@@ -263,7 +263,7 @@ export class Agent {
 		this._die = _ => {
 			setTimeout(_ => {
 				const xy = [Math.round(this.x), Math.round(this.y)];
-				this._lifeWorkerService.addAcorn(xy);
+				this._lifeWorkerService.die(xy);
 			}, this._deathTimeout);
 		};
 
