@@ -13,7 +13,7 @@ export class Agent {
 		this.maxSteps = 10000;
 		this.minRadius = 5;
 		this.maxRadius = 16;
-		this._adultRadius = this.maxRadius / this._goldenRatio;
+		this.adultFat = 2000;
 		this.depletion = 0;
 		this._flockingDistance = 150;
 
@@ -22,7 +22,7 @@ export class Agent {
 		this.y = Math.round(this._worldHeight / 2);
 		this.radius = 10;
 		// surface with implicit radius is serving as fat for the agent
-		this._fat = Math.round(Math.PI * Math.pow(this.radius, 2));
+		this.fat = Math.round(Math.PI * Math.pow(this.radius, 2));
 		this.gender = 'male';
 		this.pregnant = false;
 		this.foodSensingDistance = this.radius * this._goldenRatio;
@@ -52,11 +52,11 @@ export class Agent {
 			// Surface = pi * r^2
 			// r^2 = Surface / pi
 			// r = Math.sqrt(Surface / pi)
-			this.radius = Math.max(this.minRadius, Math.min(this.maxRadius, Math.round(Math.sqrt(this._fat / Math.PI))));
+			this.radius = Math.max(this.minRadius, Math.min(this.maxRadius, Math.round(Math.sqrt(this.fat / Math.PI))));
 			this.foodSensingDistance = this.radius * this._goldenRatio;
 			this.siblingsSensingDistance = this.radius * this._goldenRatio * this._goldenRatio;
 			const originalAdult = this.adult;
-			this.adult = (this.radius > this._adultRadius) * 1;
+			this.adult = (this.fat > this.adultFat) * 1;
 			if (this.adult == originalAdult) return;
 			this.image = this._agentImages[this.gender][this.adult];
 		};
@@ -65,8 +65,8 @@ export class Agent {
 			this._updateProperties();
 			this._eat();
 			this._defecate();
-			if (this._fat > 0) {
-				this._fat -= this._stepEnergy();
+			if (this.fat > 0) {
+				this.fat -= this._stepEnergy();
 				const dy = Math.sin(this.angle);
 				const dx = Math.cos(this.angle);
 				this.x = this._xWrap(this.x + dx);
@@ -98,7 +98,7 @@ export class Agent {
 			this._lifeWorkerService.eatCells(this.x, this.y, this.radius);
 			const cellsInBox = this._lifeWorkerService.getBoxCells(this.x, this.y, this.radius);
 			const cellsEaten = cellsInBox.filter(cell => this._cellIsCovered(cell));
-			this._fat += cellsEaten.length * this._celsSize;
+			this.fat += cellsEaten.length * this._celsSize;
 		};
 
 		this._isPriority = function (steps) {
