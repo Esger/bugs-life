@@ -1,38 +1,55 @@
 <template>
 	<require from="./agent-controls.css"></require>
-	<p class="controls">
+	<form>
+		<fieldset>
+			<button type="button"
+				click.delegate="addAgent(1)"><strong>+</strong> Bug</button>
 
-		<button type="button"
-			click.delegate="addAgent(1)">Add Bug</button>
+			<button type="button"
+				click.delegate="addAgent(10)"><strong>+</strong> 10 Bugs</button>
 
-		<button type="button"
-			click.delegate="addAgent(10)">Add 10 Bugs</button>
+			<button type="button"
+				click.delegate="killAgents()"><strong>0</strong> Bugs</button>
+		</fieldset>
 
-		<button type="button"
-			click.delegate="killAgents()">Kill Bugs</button>
 
-		<input id="senseFood"
-			type="checkbox"
-			checked.bind="senseFood"
-			change.delegate="toggleSenseFood()" />
-		<label for="senseFood">Sense food</label>
-
-		<input id="keepDistance"
+		<fieldset>
+			<input id="keepDistance"
 			type="checkbox"
 			checked.bind="keepDistance"
 			change.delegate="toggleKeepDistance()" />
-		<label for="keepDistance">Keep distance</label>
+			<label for="keepDistance">Minimal distance ${distance}</label>
+			<input type="range"
+			class="${keepDistance == 0 ? 'fadedOut' : ''}"
+			min.one-time="16"
+			max.one-time="64"
+			value.bind="distance"
+			change.delegate="setDistance(distance)">
+		</fieldset>
 
-		<input id="flocking"
-			type="checkbox"
-			checked.bind="flocking"
-			change.delegate="toggleFlocking()" />
-		<label for="flocking">Flocking</label>
+		<fieldset>
+			<input id="senseFood"
+				type="checkbox"
+				checked.bind="senseFood"
+				change.delegate="toggleSenseFood()" />
+			<label for="senseFood">Sense food</label>
+		</fieldset>
 
-		<input id="showData"
-			type="checkbox"
-			checked.bind="showData"
-			change.delegate="toggleShowData()" />
-		<label for="showData">Show info</label>
-	</p>
+		<fieldset>
+			<input id="flocking"
+				type="checkbox"
+				checked.bind="flocking"
+				change.delegate="toggleFlocking()" />
+			<label for="flocking">Flocking</label>
+		</fieldset>
+
+		<fieldset>
+			<input id="showData"
+				type="checkbox"
+				checked.bind="showData"
+				change.delegate="toggleShowData()" />
+			<label for="showData">Show info</label>
+		</fieldset>
+
+	</form>
 </template>

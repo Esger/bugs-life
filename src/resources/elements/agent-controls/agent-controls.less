@@ -1,7 +1,33 @@
+form,
+fieldset {
+	display  : flex;
+	gap      : 24px;
+	flex-wrap: wrap;
+}
+
+fieldset {
+	flex-direction: column;
+	gap           : 8px;
+
+	[type=checkbox]+label {
+		margin-right: 0;
+	}
+}
+
+input {
+	opacity     : 1;
+	transition  : opacity .3s ease;
+	accent-color: #8a8a00;
+}
+
 .controls {
 	display: flex;
 
 	button {
 		margin-right: 15px;
 	}
+}
+
+.fadedOut {
+	opacity: 0;
 }

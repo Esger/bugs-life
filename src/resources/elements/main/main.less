@@ -48,8 +48,13 @@ input+output {
 		white-space     : nowrap;
 		padding         : 0 20px 0 10px;
 		border-radius   : 2px;
+		border          : 1px solid transparent;
 		margin-right    : 15px;
 		cursor          : pointer;
+
+		&:hover {
+			border-color: whitesmoke;
+		}
 
 		&::before {
 			content    : '\2713';

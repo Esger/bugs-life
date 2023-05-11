@@ -47,6 +47,7 @@ export class Agent {
 		};
 		this.setDeathTimeout = deathTimeout => this._deathTimeout = Math.max(2 * deathTimeout, 100);
 		this.setKeepDistance = keepDistance => this._keepDistance = keepDistance;
+		this.setDistance = distance => this.siblingsSensingDistance = distance;
 		this.setSenseFood = canSenseFood => this._canSenseFood = canSenseFood;
 		this.setSiblings = siblings => this._siblings = siblings;
 		this.setFlocking = flocking => this._flocking = flocking;
@@ -58,7 +59,6 @@ export class Agent {
 			// r = Math.sqrt(Surface / pi)
 			this.radius = Math.max(this.minRadius, Math.min(this.maxRadius, Math.round(Math.sqrt(this.fat / Math.PI))));
 			this.foodSensingDistance = this.radius * this._goldenRatio;
-			this.siblingsSensingDistance = this.radius * this._goldenRatio * this._goldenRatio;
 			const originalAdult = this.adult;
 			this.adult = (this.fat > this.adultFat) * 1;
 			if (this.adult == originalAdult) return;

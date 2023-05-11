@@ -42,6 +42,7 @@ export class AgentsCustomElement {
 			agent.setWorldSize(this._worldWidth, this._worldHeight, this.cellSize);
 			agent.setDeathTimeout(this._speedInterval);
 			agent.setKeepDistance(this._keepDistance);
+			agent.setDistance(this._siblingsSensingDistance);
 			agent.setSenseFood(this._senseFood);
 			agent.setFlocking(this._flocking);
 		});
@@ -63,15 +64,19 @@ export class AgentsCustomElement {
 			this._setWorldWidth();
 			this._setAwareness();
 		});
-		this._cellSizeSubscription = this._eventAggregator.subscribe('keepDistance', keepDistance => {
+		this._keepDistanceSubscription = this._eventAggregator.subscribe('keepDistance', keepDistance => {
 			this._keepDistance = keepDistance;
 			this._setAwareness();
 		});
-		this._cellSizeSubscription = this._eventAggregator.subscribe('senseFood', senseFood => {
+		this._distanceSubscription = this._eventAggregator.subscribe('distance', distance => {
+			this._siblingsSensingDistance = distance;
+			this._setAwareness();
+		});
+		this._senseFoodSubscription = this._eventAggregator.subscribe('senseFood', senseFood => {
 			this._senseFood = senseFood;
 			this._setAwareness();
 		});
-		this._cellSizeSubscription = this._eventAggregator.subscribe('flocking', flocking => {
+		this._flockingSubscription = this._eventAggregator.subscribe('flocking', flocking => {
 			this._flocking = flocking;
 			this._setAwareness();
 		});
@@ -101,6 +106,10 @@ export class AgentsCustomElement {
 
 	detached() {
 		this._cellsReadySubscription.dispose();
+		this._keepDistanceSubscription.dispose();
+		this._distanceSubscription.dispose();
+		this._senseFoodSubscription.dispose();
+		this._flockingSubscription.dispose();
 		this._cellSizeSubscription.dispose();
 	}
 }
