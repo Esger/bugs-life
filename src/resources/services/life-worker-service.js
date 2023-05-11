@@ -62,7 +62,7 @@ export class LifeWorkerService {
 			message: 'killCells',
 			x: Math.round(x),
 			y: Math.round(y),
-			radius: radius / this._cellSize
+			radius: Math.round(radius / this._cellSize)
 		}
 		this._lifeWorker.postMessage(workerData);
 	}
