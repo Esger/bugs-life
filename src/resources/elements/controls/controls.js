@@ -10,49 +10,49 @@ export class ControlsCustomElement {
 
 	constructor(eventAggregator) {
 		this._eventAggregator = eventAggregator;
-		this.startPulsor = true;
 		this.clearPulsor = false;
-		this.timeOut = 0;
-		this.addListeners();
+		this.stopPulsor = false;
+		this.startPulsor = true;
+		this.randomPulsor = false;
+		this.timeOut = 40;
+	}
+
+	attached() {
+		setTimeout(() => {
+			this.setTimeoutInterval();
+		}, 100);
 	}
 
 	clear() {
 		this._eventAggregator.publish('clear');
 		this.clearPulsor = false;
-		this.startPulsor = true;
+		this.stopPulsor = false;
+		this.randomPulsor = true;
 	}
 
 	stop() {
 		this._eventAggregator.publish('stop');
+		this.stopPulsor = false;
+		this.clearPulsor = true;
 	}
 
 	step() {
 		this._eventAggregator.publish('step');
-		this.startPulsor = false;
 	}
 
 	start() {
 		this._eventAggregator.publish('start');
 		this.startPulsor = false;
-	}
-
-	startNstop() {
-		this._eventAggregator.publish('startNstop');
-		this.startPulsor = false;
+		this.stopPulsor = true;
 	}
 
 	fillRandom() {
 		this._eventAggregator.publish('fillRandom');
+		this.randomPulsor = false;
+		this.startPulsor = true;
 	}
 
 	setTimeoutInterval() {
 		this._eventAggregator.publish('timeoutInterval', this.timeOut);
 	}
-
-	addListeners() {
-		this._eventAggregator.subscribe('cellSize', response => {
-			this.clearPulsor = true;
-		});
-	}
-
 }

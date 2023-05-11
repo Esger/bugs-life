@@ -1,16 +1,14 @@
-import {
-	inject
-} from 'aurelia-framework';
-import {
-	EventAggregator
-} from 'aurelia-event-aggregator';
+import { inject } from 'aurelia-framework';
+import { EventAggregator } from 'aurelia-event-aggregator';
+import { SettingsService } from 'services/settings-service';
 
-@inject(EventAggregator)
+@inject(EventAggregator, SettingsService)
 
 export class SettingsCustomElement {
 
-	constructor(eventAggregator) {
-		this.ea = eventAggregator;
+	constructor(eventAggregator, settingsService) {
+		this._eventAggregator = eventAggregator;
+		this._settingsService = settingsService;
 		this.liferules = [];
 		this.selectedPreset = 6;
 		this.presets = [
@@ -37,29 +35,44 @@ export class SettingsCustomElement {
 			{ id: 20, rule: "/234", name: "Serviettes" },
 			{ id: 21, rule: "235678/3678", name: "Stains" },
 			{ id: 22, rule: "2345/45678", name: "Walled Cities" },
-			{ id: 23, rule: "1/12", name: "Sierpinski" }
+			{ id: 23, rule: "1/12", name: "Sierpinski" },
+			{ id: 24, rule: "23/356", name: "Fat Life" },
 			// { id: 1, rule: "34678/0123478/2", name: "Inverse Life" }, 
 		];
-		this.grid = false;
-		this.trails = true;
+		this.trails = this._settingsService.getSettings('trails');
+		if (this.trails == undefined) this.trails = true;
+		this.grid = this._settingsService.getSettings('grid') || false;
+		this.initialized = false;
 		this.cellSize = 2;
 		this.cellSizeExp = 1;
-		this.minCellSize = 0;
+		this.minCellSize = -1;
 		this.maxCellSize = 5;
 		this.setPreset();
 	}
 
-	toggleTrails() {
-		this.ea.publish('toggleTrails', this.trails);
+	attached() {
+		this.publishRules(!this.initialized);
+		this.initialized = true;
+		this.setCellSize();
+		setTimeout(_ => {
+			this.setTrails();
+			this.setGrid();
+		}, 100);
 	}
 
-	toggleGrid() {
-		this.ea.publish('toggleGrid', this.grid);
+	setTrails() {
+		this._settingsService.saveSettings('trails', this.trails);
+		this._eventAggregator.publish('toggleTrails', this.trails);
+	}
+
+	setGrid() {
+		this._settingsService.saveSettings('grid', this.grid);
+		this._eventAggregator.publish('toggleGrid', this.grid);
 	}
 
 	setCellSize() {
 		this.cellSize = Math.pow(2, this.cellSizeExp);
-		this.ea.publish('cellSize', this.cellSize);
+		this._eventAggregator.publish('cellSize', this.cellSize);
 	}
 
 	setPreset() {
@@ -78,7 +91,7 @@ export class SettingsCustomElement {
 	}
 
 	publishRules(init) {
-		this.ea.publish('lifeRules', {
+		this._eventAggregator.publish('lifeRules', {
 			liferules: this.liferules,
 			init: init
 		});
@@ -102,10 +115,5 @@ export class SettingsCustomElement {
 		this.liferules[i] = !this.liferules[i];
 		this.compareToPresets();
 		this.publishRules(false);
-	}
-
-	attached() {
-		this.publishRules(true);
-		this.setCellSize();
 	}
 }

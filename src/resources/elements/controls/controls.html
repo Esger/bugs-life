@@ -4,11 +4,11 @@
 	<life-controls>
 		<a href="#"
            class="clearbutton"
-           class.bind="clearPulsor ? 'pulsor' : ''"
+           class="${clearPulsor ? 'pulsor' : ''}"
            title="Clear"
            click.delegate="clear()"></a>
 		<a href="#"
-           class="stopbutton"
+           class="stopbutton ${stopPulsor ? 'pulsor' : ''}"
            title="Stop"
            click.delegate="stop()"></a>
 		<a href="#"
@@ -16,25 +16,22 @@
            title="Step"
            click.delegate="step()"></a>
 		<a href="#"
-           class="startnstopbutton"
-           class.bind="startPulsor ? 'pulsor' : ''"
-           title="Start … and stop automatically"
-           click.delegate="startNstop()"><span></span></a>
-		<a href="#"
-           class="startbutton"
+           class="startbutton ${startPulsor ? 'pulsor' : ''}"
            title="Start"
            click.delegate="start()"></a>
 		<a href="#"
-           class="randombutton"
+           class="randombutton ${randomPulsor ? 'pulsor' : ''}"
            title="Fill randomly"
            click.delegate="fillRandom()"></a>
-		<input type="range"
-               min.one-time="0"
-               max.one-time="200"
-               step="20"
-               value.bind="timeOut"
-               change.delegate="setTimeoutInterval()">
-		<output value.bind="'interval: ' + timeOut"></output>
+		<span class="interval">
+			   <input type="range"
+					  min.one-time="0"
+					  max.one-time="200"
+					  step="20"
+					  value.bind="timeOut"
+					  input.delegate="setTimeoutInterval()">
+			   <output value="interval: ${timeOut}">
+		</span>
 
 	</life-controls>
 	<stats></stats>

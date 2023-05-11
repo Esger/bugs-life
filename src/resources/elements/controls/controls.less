@@ -1,151 +1,166 @@
 controls {
-    display        : flex;
-    justify-content: space-between;
-    margin-bottom  : 36px;
+	display        : flex;
+	justify-content: space-between;
+	align-items    : flex-start;
+	margin-bottom  : 36px;
 
-    life-controls {
-        display        : flex;
-        justify-content: flex-start;
-        align-items    : center;
+	life-controls {
+		display        : flex;
+		justify-content: flex-start;
+		flex-wrap      : wrap;
+		align-items    : center;
 
-        a {
-            width           : 24px;
-            height          : 21px;
-            margin-right    : 2px;
-            background-color: transparent;
-        }
+		a {
+			width           : 24px;
+			height          : 21px;
+			margin-right    : 2px;
+			background-color: transparent;
+		}
 
-        [class*='button'] {
-            margin-right: 10px;
-        }
+		>* {
+			margin-bottom: 16px;
+		}
 
-        [type='range'] {
-            margin: 0;
-        }
+		[class*='button'] {
+			margin-right: 10px;
+		}
 
-        .button() {
-            width        : 20px;
-            height       : 20px;
-            border-radius: 2px;
-        }
+		[type='range'] {
+			margin: 0;
+		}
 
-        .clearbutton {
-            .button;
-            box-sizing: border-box;
-            border    : 2px solid #8a8a00;
+		.button() {
+			width        : 20px;
+			height       : 20px;
+			border-radius: 2px;
+		}
 
-            &.pulsor::before {
-                content      : '';
-                display      : block;
-                width        : calc(~'100% + 4px');
-                height       : calc(~'100% + 4px');
-                margin       : -3px;
-                border       : 1px solid whitesmoke;
-                border-radius: 3px;
-            }
+		.clearbutton {
+			.button;
+			box-sizing: border-box;
+			border    : 2px solid #8a8a00;
 
-            &:hover {
-                border-color: whitesmoke;
-            }
-        }
+			&.pulsor::before {
+				content      : '';
+				display      : block;
+				width        : calc(~'100% + 4px');
+				height       : calc(~'100% + 4px');
+				margin       : -3px;
+				border       : 1px solid whitesmoke;
+				border-radius: 3px;
+			}
 
-        .startbutton, .startnstopbutton {
-            position: relative;
-            width   : 33px;
+			&:hover {
+				border-color: whitesmoke;
+			}
+		}
 
-            &::after, &::before {
-                content     : '';
-                display     : block;
-                position    : absolute;
-                left        : 0;
-                top         : 0;
-                width       : 0;
-                height      : 0;
-                border-style: solid;
-                border-width: 10px 0 10px 17.3px;
-                border-color: transparent transparent transparent #8a8a00;
-            }
+		.startbutton,
+		.startnstopbutton {
+			position: relative;
+			width   : 33px;
 
-            &::after {
-                right: 0;
-                left : auto;
-            }
+			&::after,
+			&::before {
+				content     : '';
+				display     : block;
+				position    : absolute;
+				left        : 0;
+				top         : 0;
+				width       : 0;
+				height      : 0;
+				border-style: solid;
+				border-width: 10px 0 10px 17.3px;
+				border-color: transparent transparent transparent #8a8a00;
+			}
 
-            &:hover {
-                &::after, &::before {
-                    border-left-color: whitesmoke;
-                }
-            }
+			&::after {
+				right: 0;
+				left : auto;
+			}
 
-        }
+			&:hover {
 
-        .startnstopbutton {
-            display        : flex;
-            justify-content: flex-end;
+				&::after,
+				&::before {
+					border-left-color: whitesmoke;
+				}
+			}
 
-            span {
-                flex            : 0 0 2px;
-                content         : '';
-                background-color: #8a8a00;
+		}
 
-            }
+		.startnstopbutton {
+			display        : flex;
+			justify-content: flex-end;
 
-            &:hover span {
-                background-color: whitesmoke;
-            }
-            width          : 31px;
+			span {
+				flex            : 0 0 2px;
+				content         : '';
+				background-color: #8a8a00;
 
-        }
+			}
 
-        .stopbutton {
-            .button;
-            box-sizing      : border-box;
-            border          : 2px solid #8a8a00;
-            background-color: #8a8a00;
+			&:hover span {
+				background-color: whitesmoke;
+			}
 
-            &:hover {
-                border-color    : whitesmoke;
-                background-color: whitesmoke;
-            }
-        }
+			width : 31px;
 
-        .stepbutton {
-            width       : 0;
-            height      : 0;
-            border-style: solid;
-            border-width: 10px 0 10px 17.3px;
-            border-color: transparent transparent transparent #8a8a00;
+		}
 
-            &:hover {
-                border-left-color: whitesmoke;
-            }
-        }
+		.stopbutton {
+			.button;
+			box-sizing      : border-box;
+			border          : 2px solid #8a8a00;
+			background-color: #8a8a00;
 
-        .randombutton {
-            .button;
-            background-image: url("random-button.svg");
+			&:hover {
+				border-color    : whitesmoke;
+				background-color: whitesmoke;
+			}
+		}
 
-            &:hover {
-                background-position: -20px 0;
-            }
-        }
+		.stepbutton {
+			width       : 0;
+			height      : 0;
+			border-style: solid;
+			border-width: 10px 0 10px 17.3px;
+			border-color: transparent transparent transparent #8a8a00;
 
-        .trails {
-            margin-left: 20px;
-        }
+			&:hover {
+				border-left-color: whitesmoke;
+			}
+		}
 
-        .pulsor:not(:hover), .pulsor:not(:hover)::after, .pulsor:not(:hover)::before {
-            box-shadow: 0 0 30px whitesmoke;
-            animation : pulsate .3s infinite alternate;
-        }
-        @keyframes pulsate {
-            from {
-                box-shadow: 0 0 10px rgba(255,255,255,0);
-            }
+		.randombutton {
+			.button;
+			background-image: url("random-button.svg");
 
-            to {
-                box-shadow: 0 0 20px rgba(255,255,255,1);
-            }
-        }
-    }
+			&:hover {
+				background-position: -20px 0;
+			}
+		}
+
+		.interval {
+			display    : inline-flex;
+			align-items: center;
+		}
+
+		.pulsor:not(:hover),
+		.pulsor:not(:hover)::after,
+		.pulsor:not(:hover)::before {
+			box-shadow: 0 0 20px white;
+			animation : pulsate .333s infinite alternate;
+		}
+
+		@keyframes pulsate {
+			from {
+				box-shadow: 0 0 10px rgba(255, 255, 255, 0);
+			}
+
+			to {
+				box-shadow: 0 0 20px rgba(255, 255, 255, 1);
+			}
+		}
+	}
 }

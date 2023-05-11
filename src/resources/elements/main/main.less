@@ -1,9 +1,13 @@
 main {
+	--pageMargin    : 5vmin;
+	--backGround    : #dd3;
+	--textColor     : #333;
 	display         : block;
-	width           : 750px;
-	padding         : 50px;
-	background-color: #dd0;
-	color           : #333;
+	width           : calc(100% - (2 * var(--pageMargin)));
+	max-width       : 1024px;
+	padding         : var(--pageMargin);
+	background-color: var(--backGround);
+	color           : var(--textColor);
 
 	h1 {
 		font-weight    : bold;
@@ -19,7 +23,7 @@ main {
 }
 
 a {
-	color: #333;
+	color: var(--textColor);
 }
 
 label {
@@ -38,8 +42,10 @@ input+output {
 		font-weight     : bold;
 		color           : #dd0;
 		background-color: #8a8a00;
+		width           : min-content;
 		height          : 21px;
 		line-height     : 21px;
+		white-space     : nowrap;
 		padding         : 0 20px 0 10px;
 		border-radius   : 2px;
 		margin-right    : 15px;
@@ -70,13 +76,6 @@ input+output {
 		}
 	}
 
-}
-
-[type=range] {
-
-	&+output {
-		margin: 0 15px 0 10px;
-	}
 }
 
 .hidden {

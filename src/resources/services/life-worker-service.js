@@ -6,12 +6,22 @@ export class LifeWorkerService {
 
 	constructor(eventAggregator) {
 		this.ea = eventAggregator;
-		this.wrkr = new Worker('./assets/life-worker.js');
+		this._lifeWorker = new Worker('./assets/life-worker.js');
 
 		this._buffer = [];
 		this._fillSlotIndex = 0;
 		this._getSlotIndex = 0;
 		this._maxIndex = 9;
+		this._walkers = {
+			right: [[1, -2], [2, -1], [-2, 0], [2, 0], [-1, 1], [0, 1], [1, 1], [2, 1]],
+			rightDown: [[1, -1], [-1, 0], [1, 0], [0, 1], [1, 1]],
+			down: [[0, -2], [-1, -1], [-1, 0], [-1, 1], [2, 1], [-1, 2], [0, 2], [1, 2]],
+			leftDown: [[0, -1], [-1, 0], [-1, 1], [0, 1], [1, 1]],
+			left: [[-1, -2], [-2, -1], [-2, 0], [2, 0], [-2, 1], [-1, 1], [0, 1], [1, 1]],
+			leftUp: [[-1, -1], [0, -1], [-1, 0], [1, 0], [-1, 1]],
+			up: [[-1, -2], [0, -2], [1, -2], [-1, -1], [2, -1], [-1, 0], [-1, 1], [0, 2]],
+			rightUp: [[-1, -1], [0, -1], [1, -1], [1, 0], [0, 1]],
+		};
 	}
 
 	getCells() {
@@ -22,32 +32,73 @@ export class LifeWorkerService {
 		return this._buffer.length;
 	}
 
-	init(w, h, liferules) {
+	_withinBox(cellX, cellY, x, y, distance) {
+		const minX = x - distance;
+		const maxX = x + distance;
+		const minY = y - distance;
+		const maxY = y + distance;
+		const withinBox = (
+			(cellX > minX) &&
+			(cellX < maxX) &&
+			(cellY > minY) &&
+			(cellY < maxY)
+		);
+		// const onOppositeSide = (
+		// 	(cellX + this._worldWidth > minX) &&
+		// 	(cellX - this._worldWidth < maxX) &&
+		// 	(cellY + this._worldHeight > minY) &&
+		// 	(cellY - this._worldWidth < maxY));
+		return withinBox;
+	}
+
+	getBoxCells(x, y, distance) {
+		const realDistance = Math.round(distance / this._cellSize);
+		const boxCells = this._buffer.filter(cell => this._withinBox(cell[0], cell[1], x, y, realDistance));
+		return boxCells;
+	}
+
+	eatCells(x, y, radius) {
+		const workerData = {
+			message: 'killCells',
+			x: Math.round(x),
+			y: Math.round(y),
+			radius: Math.round(radius / this._cellSize)
+		}
+		this._lifeWorker.postMessage(workerData);
+	}
+
+	init(width, height, liferules, cellSize) {
 		this._buffer = [];
-		this.wrkr.onmessage = (e) => {
+		this._lifeWorker.onmessage = (e) => {
 			this._buffer = e.data.cells || [];
 			this.ea.publish('cellsReady');
 		};
 		const workerData = {
 			message: 'initialize',
-			w: w,
-			h: h,
+			w: width,
+			h: height,
 			liferules: liferules
 		};
-		this.wrkr.postMessage(workerData);
+		this._worldWidth = width;
+		this._worldHeight = height;
+		this._cellSize = cellSize;
+		this._lifeWorker.postMessage(workerData);
 	}
 
-	resize(w, h) {
+	resize(width, height, cellSize) {
 		const inArea = cell => {
-			return (cell[0] <= w) && (cell[1] <= h);
+			return (cell[0] <= width) && (cell[1] <= height);
 		};
 		this._buffer = this._buffer.filter(inArea);
 		const workerData = {
 			message: 'setSize',
-			w: w,
-			h: h
+			w: width,
+			h: height
 		};
-		this.wrkr.postMessage(workerData);
+		this._worldWidth = width;
+		this._worldHeight = height;
+		this._cellSize = cellSize;
+		this._lifeWorker.postMessage(workerData);
 	}
 
 	clear() {
@@ -55,14 +106,14 @@ export class LifeWorkerService {
 		const workerData = {
 			message: 'clear',
 		};
-		this.wrkr.postMessage(workerData);
+		this._lifeWorker.postMessage(workerData);
 	}
 
 	fillRandom() {
 		const workerData = {
 			message: 'fillRandom',
 		};
-		this.wrkr.postMessage(workerData);
+		this._lifeWorker.postMessage(workerData);
 	}
 
 	changeRules(rules) {
@@ -70,7 +121,7 @@ export class LifeWorkerService {
 			message: 'rules',
 			rules: rules
 		};
-		this.wrkr.postMessage(workerData);
+		this._lifeWorker.postMessage(workerData);
 	}
 
 	addCell(xy) {
@@ -82,14 +133,97 @@ export class LifeWorkerService {
 			message: 'setCells',
 			cells: cells
 		};
-		this.wrkr.postMessage(workerData);
+		this._lifeWorker.postMessage(workerData);
+	}
+
+	addCells(cells) {
+		if (cells.length) {
+			const workerData = {
+				message: 'addCells',
+				cells: cells
+			};
+			this._lifeWorker.postMessage(workerData);
+		}
+	}
+
+	_convertRle2Cells(rle, offsetX = 0, offsetY = 0) {
+		const splitString = str => {
+			const regex = /(\d+|[a-z])/gi; // regular expression to match numbers or character strings of length 1
+			return str.match(regex); // return array of matching substrings
+		}
+		const cells = [];
+		const instructions = [];
+		const lines = rle.split('$');
+		lines.forEach(line => instructions.push(...splitString(line)));
+		let x = 0, y = 0, repetitions = 1;
+		instructions.forEach(instruction => {
+			switch (true) {
+				case !isNaN(instruction): // repeat instruction
+					repetitions = parseInt(instruction, 10);
+					break;
+				case instruction == 'b': // dead cell (Burried :)
+					x += repetitions;
+					repetitions = 1;
+					break;
+				case instruction == 'o': // live cell
+					for (let count = 0; count < repetitions; count++) {
+						cells.push([x + offsetX, y + offsetY]);
+						x++;
+					}
+					repetitions = 1;
+					break;
+				case instruction == '$': // end of line
+					y++; x = 0;
+					break;
+				default: // instruction == '!' end of pattern
+					break;
+			}
+		});
+		return cells;
+	}
+
+	die(xy) {
+		this.addLine(xy);
+	}
+
+	addAcorn(xy) {
+		// #N Acorn
+		// #O Charles Corderman
+		// #C A methuselah with lifespan 5206.
+		// #C www.conwaylife.com / wiki / index.php ? title = Acorn
+		// x = 7, y = 3, rule = B3 / S23
+		const rle = 'bo5b$3bo3b$2o2b3o!';
+		const cells = this._convertRle2Cells(rle, xy[0], xy[1]);
+		this.addCells(cells);
+	}
+
+	addCaterpillar(xy) {
+		// #N Caterpillar Methusaleh
+		// x = 2, y = 5, rule = B3 / S23
+		const rle = '2b2o$2b2o2$5bo$3bobo$4b2o!';
+		const cells = this._convertRle2Cells(rle, xy[0], xy[1]);
+		this.addCells(cells);
+	}
+
+	addLine(xy) {
+		// #N Line horizontally
+		const rle = '100o!';
+		const cells = this._convertRle2Cells(rle, xy[0] - 50, xy[1]);
+		this.addCells(cells);
+	}
+
+	addGlider(xy, direction) {
+		const cells = this._walkers[direction].map(cell => {
+			return [Math.round(cell[0] + xy[0]), Math.round(cell[1] + xy[1])];
+		});
+		this.addCells(cells)
 	}
 
 	getGeneration() {
 		const workerData = {
 			message: 'step'
 		};
-		this.wrkr.postMessage(workerData);
+		this._lifeWorker.postMessage(workerData);
 	}
 
 }

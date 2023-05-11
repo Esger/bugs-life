@@ -1,86 +1,283 @@
 export class Agent {
 
-	_goldenRatio = 1.618;
-	_minRadius = 0;
-	_maxRadius = 15;
-	_adultRadius = this._maxRadius / this._goldenRatio;
+	constructor(worldWidth, worldHeight, cellSize, lifeWorkerService, id) {
+		this.id = id;
+		this._worldWidth = worldWidth;
+		this._worldHeight = worldHeight;
+		this._celsSize = cellSize;
+		this._lifeWorkerService = lifeWorkerService;
+		this._goldenRatio = 1.618;
+		this._TAU = 2 * Math.PI;
+		this.steps = 0;
+		this._poopSteps = Math.floor(25 + Math.random() * 25);
+		this.maxSteps = 10000;
+		this.minRadius = 5;
+		this.maxRadius = 16;
+		this.adultFat = 2000;
+		this.depletion = 0;
+		this._flockingDistance = 150;
 
-	randomAgent() {
-		self = this;
-		const newAgentObject = _ => {
-			return {
-				angle: 0,
-				x: 50, y: 20,
-				radius: 0,
-				gender: 'male',
-				pregnant: false,
-				sensingDistance: 15,
-				turnAmount: 2
+		this.angle = 2 * Math.random(0) * Math.PI;
+		this.x = Math.round(this._worldWidth / 2);
+		this.y = Math.round(this._worldHeight / 2);
+		this.radius = 10;
+		// surface with implicit radius is serving as fat for the agent
+		this.fat = Math.round(Math.PI * Math.pow(this.radius, 2));
+		this.gender = ['male', 'female'][(Math.random() > .5) * 1];
+		this.pregnant = false;
+		this.foodSensingDistance = this.radius * this._goldenRatio;
+		this.siblingsSensingDistance = this.radius * this._goldenRatio * this._goldenRatio;
+		this.turnAmount = 5;
+		this._agentImages = {
+			'male': [$('.bug_0')[0], $('.bug-0')[0]],
+			'female': [$('.bug_1')[0], $('.bug-1')[0]]
+		}
+		this.color = {
+			male: 'rgba(66,149,206,.1)',
+			female: 'rgb(196,47,50,.1)'
+		}
+		this._stepEnergy = _ => Math.round(Math.sqrt(this.radius) / 2);
+		this._xWrap = x => (x + this._worldWidth) % this._worldWidth;
+		this._yWrap = y => (y + this._worldHeight) % this._worldHeight;
+
+		this.setWorldSize = (width, height, cellSize) => {
+			this._worldWidth = Math.round(width);
+			this._worldHeight = Math.round(height);
+			this._celsSize = cellSize;
+		};
+		this.setDeathTimeout = deathTimeout => this._deathTimeout = Math.max(2 * deathTimeout, 100);
+		this.setKeepDistance = keepDistance => this._keepDistance = keepDistance;
+		this.setSenseFood = canSenseFood => this._canSenseFood = canSenseFood;
+		this.setSiblings = siblings => this._siblings = siblings;
+		this.setFlocking = flocking => this._flocking = flocking;
+
+		this._updateProperties = _ => {
+			this.steps++;
+			// Surface = pi * r^2
+			// r^2 = Surface / pi
+			// r = Math.sqrt(Surface / pi)
+			this.radius = Math.max(this.minRadius, Math.min(this.maxRadius, Math.round(Math.sqrt(this.fat / Math.PI))));
+			this.foodSensingDistance = this.radius * this._goldenRatio;
+			this.siblingsSensingDistance = this.radius * this._goldenRatio * this._goldenRatio;
+			const originalAdult = this.adult;
+			this.adult = (this.fat > this.adultFat) * 1;
+			if (this.adult == originalAdult) return;
+			this.image = this._agentImages[this.gender][this.adult];
+		};
+
+		this.step = _ => {
+			this._updateProperties();
+			this._eat();
+			this._defecate();
+			if (this.fat > 0) {
+				this.fat -= this._stepEnergy();
+				const dy = Math.sin(this.angle);
+				const dx = Math.cos(this.angle);
+				this.x = this._xWrap(this.x + dx);
+				this.y = this._yWrap(this.y + dy);
+			} else {
+				this.depletion += 1;
+				(this.depletion == 100) && this._die();
+			}
+			let neighboursAngleNudge = 0;
+			if (this._keepDistance) {
+				neighboursAngleNudge = -this._sense180('agents');
+				this.angle += (this.turnAmount * neighboursAngleNudge * Math.PI / 180);
+			}
+			let foodAngleNudge = 0;
+			if (neighboursAngleNudge == 0 && this._canSenseFood) {
+				foodAngleNudge = this._sense180('life');
+				this.angle += (this.turnAmount * foodAngleNudge * Math.PI / 180);
+			}
+			if (this.adult && this._flocking && neighboursAngleNudge == 0 && foodAngleNudge == 0) {
+				const meanPosition = this._getMeanPosition();
+				const pithAngleNudge = this._leftOfAxis(meanPosition) ? -1 : 1;
+				this.angle += (this.turnAmount * pithAngleNudge * Math.PI / 180);
+			}
+			this.angle = (this.angle + this._TAU) % this._TAU; // normalize
+			this._setQuadrant();
+		};
+
+		this._eat = _ => {
+			this._lifeWorkerService.eatCells(this.x, this.y, this.radius);
+			const cellsInBox = this._lifeWorkerService.getBoxCells(this.x, this.y, this.radius);
+			const cellsEaten = cellsInBox.filter(cell => this._cellIsCovered(cell));
+			this.fat += cellsEaten.length * this._celsSize;
+		};
+
+		this._isPriority = function (steps) {
+			return this.steps % steps == 0;
+		};
+
+		this._defecate = _ => {
+			if (this._isPriority(this._poopSteps)) {
+				const x = Math.round(Math.cos(this.angle + Math.PI) * (this.radius + 2) + this.x);
+				const y = Math.round(Math.sin(this.angle + Math.PI) * (this.radius + 2) + this.y);
+				this._lifeWorkerService.addGlider([x, y], this._direction);
+			};
+		};
+		this._cellIsCovered = cell => (Math.pow(cell[0] - this.x, 2) + Math.pow(cell[1] - this.y, 2)) < Math.pow(this.radius, 2);
+
+		// const quadrants = ['right', 'rightDown', 'down', 'leftDown', 'left', 'leftUp', 'up', 'upRight'];
+		this._setQuadrant = _ => {
+			const tolerance = Math.PI / 8; // choose a suitable tolerance
+			const angle = this.angle;
+			switch (true) {
+				case angle < tolerance:
+					this._direction = 'right';
+					break;
+				case angle < .5 * Math.PI - tolerance:
+					this._direction = 'rightDown';
+					break;
+				case angle < .5 * Math.PI + tolerance:
+					this._direction = 'down';
+					break;
+				case angle < Math.PI - tolerance:
+					this._direction = 'leftDown';
+					break;
+				case angle < Math.PI + tolerance:
+					this._direction = 'left';
+					break;
+				case angle < 1.5 * Math.PI - tolerance:
+					this._direction = 'leftUp';
+					break;
+				case angle < 1.5 * Math.PI + tolerance:
+					this._direction = 'up';
+					break;
+				case angle < 2 * Math.PI - tolerance:
+					this._direction = 'rightUp';
+					break;
+				default:
+					this._direction = 'right';
+					break;
 			}
 		};
 
-		const newAgent = newAgentObject();
-		newAgent.adult = _ => (newAgent.radius > self._adultRadius) * 1;
-		newAgent.image = _ => self._bugImages[newAgent.gender][newAgent.adult()];
-		newAgent.step = lifeCells => {
-			const angleNudge = self._senseFood(lifeCells, newAgent.x, newAgent.y, newAgent.angle, newAgent.sensingDistance);
-			const dy = Math.sin(newAgent.angle);
-			const dx = Math.cos(newAgent.angle);
-			newAgent.x = this._xWrap(newAgent.x + dx);
-			newAgent.y = this._yWrap(newAgent.y + dy);
-			newAgent.angle += newAgent.turnAmount * angleNudge * Math.PI / 360;
-		}
-		newAgent.setWorldSize = this._setWorldSize;
-
-		return newAgent;
-	}
-
-	_senseFood(lifeCells, agentX, agentY, angle, delta) {
-		const surroundingCells = self._getSurrounding(lifeCells, agentX, agentY, delta);
-		const axis = x => {
-			const a = Math.tan(angle);
-			return a * (x - agentX) + agentY;
+		this._axis = x => {
+			const a = Math.tan(this.angle);
+			const y = a * (x - this.x) + this.y;
+			return y;
 		};
-		const leftCells = surroundingCells?.filter(cell => cell[1] > axis(cell[0]));
-		const lessCellsOnLeft = leftCells?.length < surroundingCells?.length / 2
-		const angleIncrement = [1, -1][lessCellsOnLeft * 1];
-		return angleIncrement;
-	}
 
-	_getSurrounding(lifeCells, x, y, delta) {
-		const minX = x - delta;
-		const maxX = x + delta;
-		const minY = y - delta;
-		const maxY = y + delta;
+		this._leftOfAxis = item => {
+			switch (this._direction) {
+				case 'right':
+					return item[1] < this.y;
+				case 'rightDown':
+					return item[1] < this._axis(item[0]);
+				case 'down':
+					return item[0] > this.x;
+				case 'leftDown':
+					return item[1] > this._axis(item[0]);
+				case 'left':
+					return item[1] > this.y;
+				case 'leftUp':
+					return item[1] > this._axis(item[0]);
+				case 'up':
+					return item[0] < this.x;
+				case 'rightUp':
+					return item[1] < this._axis(item[0]);
+			}
+		};
+
+		this._perpendicularAxis = x => {
+			const a = Math.tan(this.angle - (Math.PI / 2));
+			const y = a * (x - this.x) + this.y;
+			return y;
+		};
+
+		this._aheadPerpendicularAxis = item => {
+			switch (this._direction) {
+				case 'right':
+					return item[0] > this.x;
+				case 'rightDown':
+					return item[1] > this._perpendicularAxis(item[0]);
+				case 'down':
+					return item[1] > this.y;
+				case 'leftDown':
+					return item[1] > this._perpendicularAxis(item[0]);
+				case 'left':
+					return item[0] < this.x;
+				case 'leftUp':
+					return item[1] < this._perpendicularAxis(item[0]);
+				case 'up':
+					return item[1] < this.y;
+				case 'rightUp':
+					return item[1] < this._perpendicularAxis(item[0]);
+			}
+		};
+
+		// returns +1, 0 or -1 as a nudge to the current angle
+		this._sense180 = type => {
+			let items = [];
+			let itemsAhead = [];
+			let leftItems = [];
+			if (type == 'life') {
+				items = this._lifeWorkerService.getBoxCells(this.x, this.y, this.foodSensingDistance);
+				itemsAhead = items?.filter(item => this._aheadPerpendicularAxis(item));
+				if (!itemsAhead.length) return 0;
+				leftItems = itemsAhead?.filter(item => {
+					const leftOfAxis = this._leftOfAxis(item);
+					return leftOfAxis;
+				});
+			} else if (type == 'agents') {
+				items = this._siblings;
+				itemsAhead = items?.filter(item => {
+					if (item.id === this.id) return false;
+					const ahead = this._aheadPerpendicularAxis([item.x, item.y]);
+					if (ahead) {
+						const distance = Math.sqrt(Math.pow(this.x - item.x, 2) + Math.pow(this.y - item.y, 2));
+						return distance < this.siblingsSensingDistance;
+					}
+					return false;
+				});
+				if (!itemsAhead.length) return 0;
+				leftItems = itemsAhead?.filter(item => {
+					const leftOfAxis = this._leftOfAxis([item.x, item.y]);
+					return leftOfAxis;
+				});
+			}
+
+			const leftItemsCount = leftItems?.length ?? 0;
+			const rightItemsCount = itemsAhead?.length - leftItemsCount ?? 0;
+			if (leftItemsCount == rightItemsCount) return 0;
+
+			const moreItemsRight = leftItemsCount < rightItemsCount;
+			return moreItemsRight ? 1 : -1;
+		};
+
+		this._getMeanPosition = _ => {
+			// todo: farther away weighs less than closer
+			let sumX = 0;
+			let sumY = 0;
+			let neighbours = 0;
+			for (let i = 0; i < this._siblings.length; i++) {
+				const sibling = this._siblings[i];
+				const distance = Math.sqrt(Math.pow(this.x - sibling.x, 2) + Math.pow(this.y - sibling.y, 2));
+				if (distance < this._flockingDistance) {
+					sumX += sibling.x;
+					sumY += sibling.y;
+					neighbours++;
+				}
+			}
+			const mean = [sumX / neighbours, sumY / neighbours];
+			return mean;
+		};
+
+		this._die = _ => {
+			setTimeout(_ => {
+				const xy = [Math.round(this.x), Math.round(this.y)];
+				this._lifeWorkerService.die(xy);
+			}, this._deathTimeout);
+		};
+
 		// TODO: sneller mogelijk omdat cellen gesorteerd zijn op y, x
 		// dubbel loopje snel tot minY, stoppen na maxY
-		// nog rekening houden met cellen aan de andere kant
-		const surroundingCells = lifeCells.filter(cell => {
-			const withinDelta =
-				((cell[1] > minY || cell[1] > minY + this._worldHeight) &&
-					(cell[1] < maxY || cell[1] < maxY - this._worldHeight) &&
-					(cell[0] > minX || cell[0] > minX + this._worldWidth) &&
-					(cell[0] < maxX || cell[0] < maxX - this._worldWidth));
-			return withinDelta;
-		});
-		return surroundingCells;
+		// of binary search tree toepassen
 	}
 
-	_xWrap(x) {
-		return (x + this._worldWidth) % this._worldWidth;
+	createAgent(worldWidth, worldHeight, cellSize, lifeWorkerService, id) {
+		const newAgent = new Agent(worldWidth, worldHeight, cellSize, lifeWorkerService, id);
+		return newAgent;
 	}
-
-	_yWrap(y) {
-		return (y + this._worldHeight) % this._worldHeight;
-	}
-
-	setImages(bugImages) {
-		this._bugImages = bugImages;
-	}
-
-	_setWorldSize(width, height) {
-		this._worldWidth = width;
-		this._worldHeight = height;
-	}
-
 }

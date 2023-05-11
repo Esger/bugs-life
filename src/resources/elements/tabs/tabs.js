@@ -1,16 +1,11 @@
-import {
-	inject
-} from 'aurelia-framework';
-import {
-	EventAggregator
-} from 'aurelia-event-aggregator';
-
-@inject(EventAggregator)
-
+import { inject } from 'aurelia-framework';
+import { SettingsService } from 'services/settings-service';
+@inject(SettingsService)
 export class TabsCustomElement {
 
-	constructor(eventAggregator) {
-		this.tabs = [
+	constructor(settingsService) {
+		this._settingsService = settingsService;
+		this._defaultTabs = [
 			{
 				title: 'Life Rules',
 				active: true
@@ -18,8 +13,13 @@ export class TabsCustomElement {
 			{
 				title: 'Story',
 				active: false
+			},
+			{
+				title: 'Bugs',
+				active: false,
 			}
-		]
+		];
+		this.tabs = this._settingsService.getSettings('tabs') || this._defaultTabs;
 	}
 
 	activateTab(i) {
@@ -29,6 +29,7 @@ export class TabsCustomElement {
 		});
 		tabs[i].active = true;
 		this.tabs = tabs;
+		this._settingsService.saveSettings('tabs', tabs);
 	}
 
 }

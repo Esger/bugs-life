@@ -2,17 +2,14 @@ import { inject } from 'aurelia-framework';
 import { EventAggregator } from 'aurelia-event-aggregator';
 import { LifeWorkerService } from 'resources/services/life-worker-service';
 
-@inject(EventAggregator, LifeWorkerService)
+@inject(Element, EventAggregator, LifeWorkerService)
 export class LifeCustomElement {
 
 	statusUpdateHandle = null;
 	cells = null;
-	canvasWidth = 750;
-	canvasHeight = 464;
-	spaceWidth = 750;
-	spaceHeight = 464;
 
-	constructor(eventAggregator, lifeWorkerService) {
+	constructor(element, eventAggregator, lifeWorkerService) {
+		this._element = element;
 		this._eventAggregator = eventAggregator;
 		this._lifeWorkerService = lifeWorkerService;
 		this.cellSize = 2;
@@ -20,8 +17,6 @@ export class LifeCustomElement {
 		this._liferules = [];
 		this._speedInterval = 0;
 		this._running = false;
-		this._cellCounts = [];
-		this._stableCountDown = 20;
 		this._before = performance.now();
 		this._now = performance.now();
 		this._before = this._now;
@@ -30,6 +25,10 @@ export class LifeCustomElement {
 	}
 
 	attached() {
+		this.canvasWidth = Math.ceil($(this._element).width());
+		this.canvasHeight = Math.ceil($(this._element).height());
+		this.spaceWidth = this.canvasWidth;
+		this.spaceHeight = this.canvasHeight;
 		this._addListeners();
 	}
 
@@ -42,50 +41,26 @@ export class LifeCustomElement {
 
 		const speed = Math.floor(1000 * steps / this.deltaTime);
 		this._before = this._now;
-		const cellsAlive = this._lifeWorkerService.getCellCount();
-		this._eventAggregator.publish('stats', {
-			cellCount: cellsAlive,
+		this._cellsAlive = this._lifeWorkerService.getCellCount();
+		this._eventAggregator.publish('lifeStats', {
+			cellCount: this._cellsAlive,
 			generations: this._lifeSteps,
 			speed: speed
 		});
 	}
 
-	_getMeanOver100Gens() {
-		this._cellCounts.push(this._cellsAlive);
-		this._cellCounts = this._cellCounts.slice(-100);
-		const average = arr => arr.reduce((p, c) => p + c, 0) / arr.length;
-		return average(this._cellCounts);
-	}
-
-	_getStable() {
-		if (Math.abs(this._getMeanOver100Gens() - this._cellsAlive) < 7) {
-			this._stableCountDown -= 1;
-		} else {
-			this._stableCountDown = 20;
-		}
-		return this._stableCountDown <= 0;
-	}
-
-	_animateStep(checkStable) {
+	_animateStep() {
 		// It seems like calling this multiple times, speeds up everything even more.
-		this._getCells(true);
-		if (this._running && (!this._getStable() && checkStable || !checkStable)) {
-			setTimeout(_ => { this._animateStep(checkStable); }, this._speedInterval);
-		} else {
-			this._stop();
-		}
-	}
-
-	_getCells(generate) {
-		if (generate) this._lifeWorkerService.getGeneration();
+		this._lifeWorkerService.getGeneration();
 		this._lifeSteps += 1;
+		this._running && setTimeout(_ => this._animateStep(), this._speedInterval);
 	}
 
 	_initLife() {
 		this._resetSteps();
 		this.canvas = document.getElementById('life');
 		this._setSpaceSize();
-		this._lifeWorkerService.init(this.spaceWidth, this.spaceHeight, this._liferules);
+		this._lifeWorkerService.init(this.spaceWidth, this.spaceHeight, this._liferules, this.cellSize);
 		this._lifeWorkerService.fillRandom();
 	}
 
@@ -107,24 +82,7 @@ export class LifeCustomElement {
 
 	_stop() {
 		this._running = false;
-		if (!this.statusUpdateHandle) return;
-
-		setTimeout(() => {
-			clearInterval(this.statusUpdateHandle);
-			this.statusUpdateHandle = null;
-		}, 333);
-	}
-
-	_start() {
-		this._running = true;
-		this._animateStep(false);
-		this.statusUpdateHandle = setInterval(() => { this._showStats(); }, 500);
-	}
-
-	_startNstop() {
-		this._running = true;
-		this._animateStep(true); // true checks for stable life
-		this.statusUpdateHandle = setInterval(() => { this._showStats(); }, 500);
+		clearInterval(this.statusUpdateHandle);
 	}
 
 	addCell(event) {
@@ -148,28 +106,26 @@ export class LifeCustomElement {
 	_addListeners() {
 		this._eventAggregator.subscribe('clear', () => {
 			this._clear();
-			setTimeout(_ => {
-				this._showStats();
-			}, 200);
+			setTimeout(_ => this._showStats(), 200);
 		});
 		this._eventAggregator.subscribe('stop', () => {
 			this._stop();
 		});
 		this._eventAggregator.subscribe('start', () => {
-			this._start();
-		});
-		this._eventAggregator.subscribe('startNstop', () => {
-			this._startNstop();
+			this._running = true;
+			this._animateStep();
+			this.statusUpdateHandle = setInterval(_ => this._showStats(), 500);
+			setTimeout(_ => this._showStats(), 200);
 		});
 		this._eventAggregator.subscribe('step', () => {
 			this._lifeWorkerService.getGeneration();
+			this._lifeSteps++;
+			setTimeout(_ => this._showStats(), 200);
 		});
 		this._eventAggregator.subscribe('fillRandom', () => {
 			this._lifeWorkerService.fillRandom();
 			this._resetSteps();
-			setTimeout(_ => {
-				this._showStats();
-			}, 200);
+			setTimeout(_ => this._showStats(), 200);
 		});
 		this._eventAggregator.subscribe('timeoutInterval', response => {
 			this._speedInterval = response;
@@ -177,7 +133,7 @@ export class LifeCustomElement {
 		this._eventAggregator.subscribe('cellSize', response => {
 			this.cellSize = response;
 			this._setSpaceSize();
-			this._lifeWorkerService.resize(this.spaceWidth, this.spaceHeight);
+			this._lifeWorkerService.resize(this.spaceWidth, this.spaceHeight, this.cellSize);
 		});
 		this._eventAggregator.subscribe('lifeRules', response => {
 			this._liferules = response.liferules;

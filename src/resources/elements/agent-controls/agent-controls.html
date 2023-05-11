@@ -1,0 +1,38 @@
+<template>
+	<require from="./agent-controls.css"></require>
+	<p class="controls">
+
+		<button type="button"
+			click.delegate="addAgent(1)">Add Bug</button>
+
+		<button type="button"
+			click.delegate="addAgent(10)">Add 10 Bugs</button>
+
+		<button type="button"
+			click.delegate="killAgents()">Kill Bugs</button>
+
+		<input id="senseFood"
+			type="checkbox"
+			checked.bind="senseFood"
+			change.delegate="toggleSenseFood()" />
+		<label for="senseFood">Sense food</label>
+
+		<input id="keepDistance"
+			type="checkbox"
+			checked.bind="keepDistance"
+			change.delegate="toggleKeepDistance()" />
+		<label for="keepDistance">Keep distance</label>
+
+		<input id="flocking"
+			type="checkbox"
+			checked.bind="flocking"
+			change.delegate="toggleFlocking()" />
+		<label for="flocking">Flocking</label>
+
+		<input id="showData"
+			type="checkbox"
+			checked.bind="showData"
+			change.delegate="toggleShowData()" />
+		<label for="showData">Show info</label>
+	</p>
+</template>

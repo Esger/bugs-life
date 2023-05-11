@@ -3,6 +3,8 @@ var conway = {
 	cellsAlive: 0, // Number of cells alive
 	fillRatio: 0.2, // Percentage of available cells that will be set alive initially (20)
 	liferules: [],
+	addedCells: [],
+	eatenAreas: [],
 	numberCells: 0, // Number of available cells
 	spaceHeight: 0,
 	spaceWidth: 0,
@@ -44,11 +46,23 @@ var conway = {
 				}
 			}
 		}
-		return cells;
+		conway.liveCells = cells;
 	},
 
 	setCells: function (cells) {
 		conway.liveCells = cells;
+	},
+
+	storeEatenArea: function (area) {
+		conway.eatenAreas.push(area);
+	},
+
+	outsideEatenAreas: function (x, y) {
+		const insideEatenAreas = conway.eatenAreas.some(function (area) {
+			const inArea = Math.pow(x - area.x, 2) + Math.pow(y - area.y, 2) < Math.pow(area.radius, 2);
+			return inArea;
+		})
+		return !insideEatenAreas;
 	},
 
 	zeroNeighbours: function () {
@@ -62,6 +76,8 @@ var conway = {
 
 	// Tell neighbours around livecells they have a neighbour
 	updateNeighbours: function () {
+		conway.liveCells.push(...conway.addedCells);
+		conway.addedCells = [];
 		const count = conway.liveCells.length;
 		const maxNeighbour = 2;
 		const rowLength = conway.spaceWidth;
@@ -84,7 +100,7 @@ var conway = {
 	},
 
 	// Evaluate neighbourscounts for new livecells
-	evalNeighbours: function () {
+	evaluateNeighbours: function () {
 		const count = conway.numberCells;
 		const rowLength = conway.spaceWidth;
 		conway.liveCells = [];
@@ -92,12 +108,13 @@ var conway = {
 		let i = 0;
 		for (; i < count; i += 1) {
 			if (conway.liferules[conway.neighbours[i]]) {
-				let y = Math.floor(i / rowLength);
-				let x = i % rowLength;
-				// let x = i - (y * rowLength);
-				conway.liveCells.push([x, y]);
+				const y = Math.floor(i / rowLength);
+				const x = i % rowLength;
+				if (conway.outsideEatenAreas(x, y))
+					conway.liveCells.push([x, y]);
 			}
 		}
+
 	},
 
 	sendScreen: function (message) {
@@ -111,7 +128,8 @@ var conway = {
 	step: function () {
 		conway.zeroNeighbours();
 		conway.updateNeighbours();
-		conway.evalNeighbours();
+		conway.evaluateNeighbours();
+		conway.eatenAreas = [];
 		conway.sendScreen('generation');
 		conway.lifeSteps += 1;
 	}
@@ -130,17 +148,19 @@ onmessage = function (e) {
 				conway.setSize(data.w, data.h);
 				conway.sendScreen('setSize');
 				break;
-			case 'addCell':
-				conway.addCell(data.cell);
-				conway.sendScreen('addCell');
-				break;
 			case 'fillRandom':
-				conway.liveCells = conway.fillRandom();
+				conway.fillRandom();
 				conway.sendScreen('fillRandom');
 				break;
 			case 'setCells':
 				conway.setCells(data.cells);
 				conway.sendScreen('setCells');
+				break;
+			case 'addCells':
+				conway.addedCells.push(...data.cells);
+				break;
+			case 'killCells':
+				conway.storeEatenArea(data);
 				break;
 			case 'step':
 				conway.step();
